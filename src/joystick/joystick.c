@@ -35,7 +35,7 @@
 // Hardware defines
 #define AX_LOWER_LIMIT 110
 #define AY_LOWER_LIMIT 130
-#define ZERO_POINT_SPREAD 10
+#define ZERO_POINT_SPREAD 150
 
 /*****************************   Constants   *******************************/
 
@@ -53,7 +53,7 @@ INT8U x_pointer = 0;
 INT16U y_values[BUFFER_SIZE];
 INT8U y_pointer = 0;
 
-INT16U x_zero_point = 0;
+INT16U x_zero_point = 579;
 INT8U x_pos_stepsize, x_neg_stepsize = 0;
 
 /*****************************   Functions   *******************************/
@@ -125,7 +125,7 @@ void x_stepsize_calc( void )
 *   Function : Calcualtes the negative and the positive stepsizes for x.
 *****************************************************************************/
 {
-	x_zero_point = x_current;
+	//x_zero_point = x_current;
 	
 	x_pos_stepsize = ((x_zero_point - ZERO_POINT_SPREAD) - AX_LOWER_LIMIT) / 100;
 	
@@ -137,6 +137,8 @@ void joystick_task( void )
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
+	static INT8U calc_counter = 0;
+	
 	ADC_PSSI_R |= ADC_PSSI_SS0;
 	
 	if(ADC_RIS_R && ADC_RIS_INR0)
@@ -152,8 +154,13 @@ void joystick_task( void )
 				x_pointer = 0;
 				if(x_pos_stepsize == 0 && x_neg_stepsize == 0)
 				{
-					// Calcualate stepsizes.
-					x_stepsize_calc();
+					if(calc_counter < 10)
+					{
+						// Calcualate stepsizes.
+						x_stepsize_calc();
+					} else {
+						calc_counter++;
+					}
 				}
 			}
 			x_values[x_pointer] = ADC_SSFIFO0_R & ADC_SSFIFO0_DATA_M;

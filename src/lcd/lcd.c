@@ -53,6 +53,8 @@ void write_3_char_signed_int_to_buffer (INT8U start, INT8U line, INT8S i )
 	if(i < 0)
 	{
 		lcd_add_char_to_buffer(start, line, '-');
+	} else {
+		lcd_add_char_to_buffer(start, line, ' ');
 	}
 	
 	write_3_char_int_to_buffer (start + 1, line, (INT8U) i*(-1) );
