@@ -66,6 +66,16 @@ void IntDefaultHandler(void);
 
 //*****************************************************************************
 //
+// External declarations for the interrupt handlers used by the application.
+//
+//*****************************************************************************
+extern void xPortSysTickHandler(void);
+extern void xPortPendSVHandler(void);
+extern void vPortSVCHandler( void );
+
+void portd_isr(void);
+//*****************************************************************************
+//
 // The entry point for the application.
 // __main() is the entry point for Redlib based applications
 // main() is the entry point for Newlib based applications
@@ -106,15 +116,15 @@ void (* const g_pfnVectors[])(void) = {
 		0, // Reserved
 		0, // Reserved
 		0, // Reserved
-		IntDefaultHandler, // SVCall handler
+		vPortSVCHandler, // SVCall handler
 		IntDefaultHandler, // Debug monitor handler
 		0, // Reserved
-		IntDefaultHandler, // The PendSV handler
-		IntDefaultHandler, // The SysTick handler
+		xPortPendSVHandler, // The PendSV handler
+		xPortSysTickHandler, // The SysTick handler
 		IntDefaultHandler, // GPIO Port A
 		IntDefaultHandler, // GPIO Port B
 		IntDefaultHandler, // GPIO Port C
-		IntDefaultHandler, // GPIO Port D
+		portd_isr, // GPIO Port D
 		IntDefaultHandler, // GPIO Port E
 		IntDefaultHandler, // UART0 Rx and Tx
 		IntDefaultHandler, // UART1 Rx and Tx
