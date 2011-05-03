@@ -65,13 +65,13 @@ void protocol_send_task (void)
 			CLEAR_BIT(package, 14);
 		}
 		SET_BIT(package, 15);
-		CLEAR_BIT(event.value, 13);
-		CLEAR_BIT(event.value, 12);
-		CLEAR_BIT(event.value, 11);
-		CLEAR_BIT(event.value, 10);
-		CLEAR_BIT(event.value, 9);
-		CLEAR_BIT(event.value, 8);
-		CLEAR_BIT(event.value, 7);
+		CLEAR_BIT(package, 13);
+		CLEAR_BIT(package, 12);
+		CLEAR_BIT(package, 11);
+		CLEAR_BIT(package, 10);
+		CLEAR_BIT(package, 9);
+		CLEAR_BIT(package, 8);
+		CLEAR_BIT(package, 7);
 		
 		
 		xQueueSend(spi_output_queue, &package, 0);
