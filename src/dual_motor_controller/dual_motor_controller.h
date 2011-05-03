@@ -28,7 +28,22 @@
 
 /*****************************   Functions   *******************************/
 
-void init_protocol();
+INT8U motor_get_direction( INT8U m );
+/*****************************************************************************
+*   Function : Gets the direction for motor m as lastly reported from the FPGA.
+*****************************************************************************/
+
+INT16U motor_get_speed( INT8U m );
+/*****************************************************************************
+*   Function : Gets the speed for motor m as lastly reported from the FPGA.
+*****************************************************************************/
+
+INT16U motor_get_position( INT8U m );
+/*****************************************************************************
+*   Function : Gets the position for motor m as lastly reported from the FPGA.
+*****************************************************************************/
+
+void init_dual_motor_controller();
 /*****************************************************************************
 *   Function : Initializes the dual motors.
 *****************************************************************************/
