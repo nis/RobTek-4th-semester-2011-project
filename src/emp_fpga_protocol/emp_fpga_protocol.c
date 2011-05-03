@@ -58,7 +58,7 @@ void protocol_send_task (void)
 		
 		write_5_char_int_to_buffer (11, 0, package );
 		
-		if(command.motor == MOTOR_RIGHT)
+		if(command.motor == MOTOR_TWO)
 		{
 			SET_BIT(package, 14);
 		} else {
@@ -95,9 +95,9 @@ void protocol_receive_task (void)
 
 		if(TEST_BIT_HIGH(event.value, 15))
 		{
-			event.motor = MOTOR_RIGHT;
+			event.motor = MOTOR_TWO;
 		} else {
-			event.motor = MOTOR_LEFT;
+			event.motor = MOTOR_ONE;
 		}
 
 		if(TEST_BIT_HIGH(event.value, 14))

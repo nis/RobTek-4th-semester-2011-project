@@ -26,8 +26,8 @@
 
 	// Motor events
 		// Motors
-		#define MOTOR_LEFT 0
-		#define MOTOR_RIGHT 1
+		#define MOTOR_ONE 0
+		#define MOTOR_TWO 1
 		
 		// Event types
 		#define MOTOR_POS 1

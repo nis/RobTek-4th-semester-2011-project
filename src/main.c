@@ -98,7 +98,7 @@ void vUserTask3(void *pvParameters) {
 	INT8U cdir = 1;
 	motor_command command;
 	
-	command.motor = MOTOR_RIGHT;
+	command.motor = MOTOR_TWO;
 	command.direction = direction;
 	command.speed = speed;
 	xQueueSend(motor_command_queue, &command, 0);
@@ -134,7 +134,7 @@ void vUserTask3(void *pvParameters) {
 				}
 			}
 			
-			command.motor = MOTOR_RIGHT;
+			command.motor = MOTOR_TWO;
 			command.direction = direction;
 			command.speed = speed;
 			xQueueSend(motor_command_queue, &command, 0);
@@ -158,7 +158,7 @@ void vUserTask3(void *pvParameters) {
 			
 			if(xQueueReceive(motor_event_queue, &event, 0) == pdPASS)
 			{
-				if(event.motor == MOTOR_RIGHT)
+				if(event.motor == MOTOR_TWO)
 				{
 					if(event.type == MOTOR_POS)
 					{
