@@ -21,6 +21,7 @@
 //#include "pot/pot.h"
 #include "buttons/buttons.h"
 #include "emp_fpga_protocol/emp_fpga_protocol.h"
+#include "dual_motor_controller/dual_motor_controller.h"
 
 // all mutex used in this c program
 xSemaphoreHandle lcd_buffer_mutex;
@@ -223,6 +224,15 @@ void protocol_task_runner(void *pvParameters) {
 	}
 }
 
+/**
+ * Dual motor driver.
+ */
+void motor_task(void *pvParameters) {
+	while (1) {
+		dual_motor_task();
+		vTaskDelay(10) ;
+	}
+}
 
 /**
  * Program entry point 
@@ -239,6 +249,7 @@ int main(void) {
 	xTaskCreate( vUserTask4, ( signed portCHAR * ) "Task4", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	xTaskCreate( spi_task, ( signed portCHAR * ) "Task5", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	xTaskCreate( protocol_task_runner, ( signed portCHAR * ) "Task6", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+	xTaskCreate( motor_task, ( signed portCHAR * ) "Task7", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	
 	/* 
 	 * Setup semaphores.

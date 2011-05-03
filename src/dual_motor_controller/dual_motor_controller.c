@@ -90,6 +90,45 @@ INT16U motor_get_position( INT8U m )
 	if(m == MOTOR_TWO)
 	{
 		return motor_two_position; 
+
+void dual_motor_task()
+/*****************************************************************************
+*   Function : See module specification (.h-file).
+*****************************************************************************/
+{
+	
+	if(uxQueueMessagesWaiting(motor_event_queue) != 0)
+	{
+		motor_event event;
+		
+		if(xQueueReceive(motor_event_queue, &event, 0) == pdPASS)
+		{
+			if(event.motor == MOTOR_TWO)
+			{
+				if(event.type == MOTOR_POS)
+				{
+					// Position
+					write_5_char_int_to_buffer (11, 1, event.value );
+				}
+
+				if(event.type == MOTOR_SPEED)
+				{
+					// Speed
+					write_5_char_int_to_buffer (5, 1, event.value );
+					
+					// Direction
+					if(event.direction == MOTOR_CW)
+					{
+						lcd_add_string_to_buffer(1, 1, "CW ");
+					}
+					
+					if(event.direction == MOTOR_CCW)
+					{
+						lcd_add_string_to_buffer(1, 1, "CCW");
+					}
+				}
+			}
+		}
 	}
 }
 
