@@ -80,13 +80,6 @@
 #define configUSE_CO_ROUTINES 		0
 #define configUSE_MUTEXES			1
 
-#define configUSE_COUNTING_SEMAPHORES 0
-#define configUSE_ALTERNATIVE_API 0
-
-#define configCHECK_FOR_STACK_OVERFLOW	0
-#define configUSE_RECURSIVE_MUTEXES		1
-#define configQUEUE_REGISTRY_SIZE		10
-
 #define configMAX_PRIORITIES		( ( unsigned portBASE_TYPE ) 5 )
 #define configMAX_CO_ROUTINE_PRIORITIES ( 2 )
 

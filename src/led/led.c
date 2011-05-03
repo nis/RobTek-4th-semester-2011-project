@@ -20,8 +20,8 @@
 /***************************** Include files *******************************/
 #include "inc/lm3s6965.h"
 #include "../inc/emp_type.h"
+//#include "../inc/glob_def.h"
 #include "../inc/binary.h"
-#include "led.h"
 
 /*****************************    Defines    *******************************/
 

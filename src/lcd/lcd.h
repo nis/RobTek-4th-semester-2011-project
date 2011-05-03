@@ -14,6 +14,11 @@
 #define COL_SIZE				16
 #define ROW_SIZE				2
 
+INT8U int_to_ascii(INT8U number);
+/*****************************************************************************
+*   Function : Accepts an int < 10 and returns the ascii value for that number
+*****************************************************************************/
+
 void write_2_char_int_to_buffer (INT8U start, INT8U line, INT8U i );
 void write_3_char_int_to_buffer (INT8U start, INT8U line, INT8U i );
 void write_4_char_int_to_buffer (INT8U start, INT8U line, INT16U i );
