@@ -52,12 +52,16 @@ INT8U motor_get_direction( INT8U m )
 {
 	if(m == MOTOR_ONE)
 	{
-		return motor_one_direction; 
+		xSemaphoreTake(motor_one_direction_mutex, portMAX_DELAY );
+		return motor_one_direction;
+		xSemaphoreGive(motor_one_direction_mutex);
 	}
-	
+
 	if(m == MOTOR_TWO)
 	{
-		return motor_two_direction; 
+		xSemaphoreTake(motor_two_direction_mutex, portMAX_DELAY );
+		return motor_two_direction;
+		xSemaphoreGive(motor_two_direction_mutex);
 	}
 }
 
@@ -68,12 +72,16 @@ INT16U motor_get_speed( INT8U m )
 {
 	if(m == MOTOR_ONE)
 	{
-		return motor_one_speed; 
+		xSemaphoreTake(motor_one_speed_mutex, portMAX_DELAY );
+		return motor_one_speed;
+		xSemaphoreGive(motor_one_speed_mutex);
 	}
 	
 	if(m == MOTOR_TWO)
 	{
-		return motor_two_speed; 
+		xSemaphoreTake(motor_two_speed_mutex, portMAX_DELAY );
+		return motor_two_speed;
+		xSemaphoreGive(motor_two_speed_mutex);
 	}
 }
 
@@ -84,12 +92,18 @@ INT16U motor_get_position( INT8U m )
 {
 	if(m == MOTOR_ONE)
 	{
-		return motor_one_position; 
+		xSemaphoreTake(motor_one_position_mutex, portMAX_DELAY );
+		return motor_one_position;
+		xSemaphoreGive(motor_one_position_mutex);
 	}
-	
+
 	if(m == MOTOR_TWO)
 	{
-		return motor_two_position; 
+		xSemaphoreTake(motor_two_position_mutex, portMAX_DELAY );
+		return motor_two_position;
+		xSemaphoreGive(motor_two_position_mutex);
+	}
+}
 
 void dual_motor_task()
 /*****************************************************************************
