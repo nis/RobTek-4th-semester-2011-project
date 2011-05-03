@@ -65,17 +65,7 @@ static void setupHardware(void) {
 void vUserTask1(void *pvParameters) {
 
 	while (1) {
-		
 		button_task();
-		
-		// INT8U up_clicks = get_up_clicks();
-		// //INT8U down_clicks = get_down_clicks();
-		// 
-		// if(up_clicks)
-		// {
-		// 	led_all_toggle();
-		// }
-		
 		vTaskDelay(20);
 	}
 }
@@ -192,50 +182,6 @@ void vUserTask3(void *pvParameters) {
 			}
 		}
 		
-		// Send
-		//SSI0_DR_R = counter;
-		//xQueueSend(spi_output_queue, &counter, 0);
-		
-		// INT8U c1 = int_to_ascii((counter / 100) % 10);
-		// INT8U c2 = int_to_ascii((counter / 10) % 10);
-		// INT8U c3 = int_to_ascii((counter / 1) % 10);
-		// 
-		// if(c1 == 0x30)
-		// {
-		// 	c1 = 0x20;
-		// 	if(c2 == 0x30)
-		// 	{
-		// 		c2 = 0x20;
-		// 	}
-		// }
-		// 
-		// lcd_add_char_to_buffer(10, 0, c1);
-		// lcd_add_char_to_buffer(11, 0, c2);
-		// lcd_add_char_to_buffer(12, 0, c3);
-		// counter++;
-		
-		// Receive
-		
-		// INT16U recieved_data = 0;
-		// recieved_data = SSI0_DR_R;
-		// 	   
-		// 	   c1 = int_to_ascii((recieved_data / 100) % 10);
-		// 	   c2 = int_to_ascii((recieved_data / 10) % 10);
-		// 	   c3 = int_to_ascii((recieved_data / 1) % 10);
-		// 
-		// if(c1 == 0x30)
-		// {
-		// 	c1 = 0x20;
-		// 	if(c2 == 0x30)
-		// 	{
-		// 		c2 = 0x20;
-		// 	}
-		// }
-		// 
-		// lcd_add_char_to_buffer(10, 1, c1);
-		// lcd_add_char_to_buffer(11, 1, c2);
-		// lcd_add_char_to_buffer(12, 1, c3);
-		
 		vTaskDelay(10) ;
 	}
 }
@@ -276,7 +222,6 @@ void protocol_task_runner(void *pvParameters) {
 		vTaskDelay(10) ;
 	}
 }
-
 
 
 /**
