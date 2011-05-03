@@ -25,6 +25,12 @@
 // all mutex used in this c program
 xSemaphoreHandle lcd_buffer_mutex;
 xSemaphoreHandle lcd_keyboard_port_mutex;
+xSemaphoreHandle motor_one_speed_mutex;
+xSemaphoreHandle motor_two_speed_mutex;
+xSemaphoreHandle motor_one_direction_mutex;
+xSemaphoreHandle motor_two_direction_mutex;
+xSemaphoreHandle motor_one_position_mutex;
+xSemaphoreHandle motor_two_position_mutex;
 
 // Queues
 xQueueHandle motor_event_queue;
@@ -301,6 +307,48 @@ int main(void) {
 	
 	lcd_keyboard_port_mutex = xSemaphoreCreateMutex();
 	if ( lcd_keyboard_port_mutex == NULL )
+	{
+		led_red_on();
+		while(1);
+	}
+	
+	motor_one_speed_mutex = xSemaphoreCreateMutex();
+	if ( motor_one_speed_mutex == NULL )
+	{
+		led_red_on();
+		while(1);
+	}
+	
+	motor_two_speed_mutex = xSemaphoreCreateMutex();
+	if ( motor_two_speed_mutex == NULL )
+	{
+		led_red_on();
+		while(1);
+	}
+	
+	motor_one_direction_mutex = xSemaphoreCreateMutex();
+	if ( motor_one_direction_mutex == NULL )
+	{
+		led_red_on();
+		while(1);
+	}
+	
+	motor_two_direction_mutex = xSemaphoreCreateMutex();
+	if ( motor_two_direction_mutex == NULL )
+	{
+		led_red_on();
+		while(1);
+	}
+	
+	motor_one_position_mutex = xSemaphoreCreateMutex();
+	if ( motor_one_position_mutex == NULL )
+	{
+		led_red_on();
+		while(1);
+	}
+	
+	motor_two_position_mutex = xSemaphoreCreateMutex();
+	if ( motor_two_position_mutex == NULL )
 	{
 		led_red_on();
 		while(1);

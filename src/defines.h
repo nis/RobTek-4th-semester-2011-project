@@ -50,6 +50,12 @@ typedef struct {INT8U motor; INT8U direction; INT8U speed} motor_command;
 // all mutex used in this c program
 extern xSemaphoreHandle lcd_buffer_mutex;
 extern xSemaphoreHandle lcd_keyboard_port_mutex;
+extern xSemaphoreHandle motor_one_speed_mutex;
+extern xSemaphoreHandle motor_two_speed_mutex;
+extern xSemaphoreHandle motor_one_direction_mutex;
+extern xSemaphoreHandle motor_two_direction_mutex;
+extern xSemaphoreHandle motor_one_position_mutex;
+extern xSemaphoreHandle motor_two_position_mutex;
 
 // all queues in this c code
 extern xQueueHandle motor_event_queue;
