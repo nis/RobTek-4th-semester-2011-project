@@ -45,6 +45,66 @@ INT8U motor_two_position = 0;
 
 /*****************************   Functions   *******************************/
 
+void set_direction( INT8U m, INT8U d )
+/*****************************************************************************
+*   Function : Internal, sets direction.
+*****************************************************************************/
+{
+	if(m == MOTOR_ONE)
+	{
+		xSemaphoreTake(motor_one_direction_mutex, portMAX_DELAY );
+		motor_one_direction = d;
+		xSemaphoreGive(motor_one_direction_mutex);
+	}
+
+	if(m == MOTOR_TWO)
+	{
+		xSemaphoreTake(motor_two_direction_mutex, portMAX_DELAY );
+		motor_two_direction = d;
+		xSemaphoreGive(motor_two_direction_mutex);
+	}
+}
+
+void set_speed( INT8U m, INT16U s )
+/*****************************************************************************
+*   Function : Internal, sets speed.
+*****************************************************************************/
+{
+	if(m == MOTOR_ONE)
+	{
+		xSemaphoreTake(motor_one_speed_mutex, portMAX_DELAY );
+		motor_one_speed = s;
+		xSemaphoreGive(motor_one_speed_mutex);
+	}
+	
+	if(m == MOTOR_TWO)
+	{
+		xSemaphoreTake(motor_two_speed_mutex, portMAX_DELAY );
+		motor_two_speed = s;
+		xSemaphoreGive(motor_two_speed_mutex);
+	}
+}
+
+void set_position( INT8U m, INT8U p )
+/*****************************************************************************
+*   Function : Internal, sets position.
+*****************************************************************************/
+{
+	if(m == MOTOR_ONE)
+	{
+		xSemaphoreTake(motor_one_position_mutex, portMAX_DELAY );
+		motor_one_position = p;
+		xSemaphoreGive(motor_one_position_mutex);
+	}
+
+	if(m == MOTOR_TWO)
+	{
+		xSemaphoreTake(motor_two_position_mutex, portMAX_DELAY );
+		motor_two_position = p;
+		xSemaphoreGive(motor_two_position_mutex);
+	}
+}
+
 INT8U motor_get_direction( INT8U m )
 /*****************************************************************************
 *   Function : See module specification (.h-file).
@@ -117,31 +177,21 @@ void dual_motor_task()
 		
 		if(xQueueReceive(motor_event_queue, &event, 0) == pdPASS)
 		{
-			if(event.motor == MOTOR_TWO)
+			if(event.type == MOTOR_POS)
 			{
-				if(event.type == MOTOR_POS)
-				{
-					// Position
-					write_5_char_int_to_buffer (11, 1, event.value );
-				}
-
-				if(event.type == MOTOR_SPEED)
-				{
-					// Speed
-					write_5_char_int_to_buffer (5, 1, event.value );
-					
-					// Direction
-					if(event.direction == MOTOR_CW)
-					{
-						lcd_add_string_to_buffer(1, 1, "CW ");
-					}
-					
-					if(event.direction == MOTOR_CCW)
-					{
-						lcd_add_string_to_buffer(1, 1, "CCW");
-					}
-				}
+				// Position
+				set_position(event.motor, event.value);
 			}
+			
+			if(event.type == MOTOR_SPEED)
+			{
+				// Speed
+				set_speed(event.motor, event.value);
+				
+				// Direction
+				set_direction(event.motor, event.direction);
+			}
+
 		}
 	}
 }
