@@ -38,6 +38,7 @@ xQueueHandle motor_event_queue;
 xQueueHandle motor_command_queue;
 xQueueHandle spi_input_queue;
 xQueueHandle spi_output_queue;
+xQueueHandle ui_event_queue;
 
 #define USERTASK_STACK_SIZE configMINIMAL_STACK_SIZE
 
@@ -90,10 +91,13 @@ void vUserTask3(void *pvParameters) {
 	lcd_add_string_to_buffer(0, 0, "                ");
 	lcd_add_string_to_buffer(0, 1, "                ");
 	
+	portBASE_TYPE status;
+	ui_event event;
+	
 	INT8U speed = 0;
 	INT8U direction = MOTOR_CW;
 	INT8U cdir = 1;
-	motor_command command;
+	// motor_command command;
 	
 	// command.motor = MOTOR_TWO;
 	// command.direction = direction;
@@ -105,49 +109,102 @@ void vUserTask3(void *pvParameters) {
 	
 	while (1) {
 		
-		INT8U up_clicks = get_up_clicks();
+		// INT8U up_clicks = get_up_clicks();
+		// 		INT8U down_clicks = get_down_clicks();
 		
-		if(up_clicks)
+		if(uxQueueMessagesWaiting(ui_event_queue) != 0)
 		{
-			//typedef struct {INT8U motor; INT8U direction; INT8U speed} motor_command;
+			status = xQueueReceive(ui_event_queue, &event, 0);
 			
-			if( cdir == 1)
+			if(status == pdPASS)
 			{
-				if(speed >= 49)
+				switch ( event.event )
 				{
-					cdir = 0;
-				} else {
-					speed++;
-				}
-			} else {
-				if(speed == 0)
-				{
-					cdir = 1;
-					if(direction == MOTOR_CW)
+					case UP_CLICK:
+					if(speed < 49)
+					{
+						speed++;
+					}
+					break;
+					
+					case DOWN_CLICK:
+					if(speed > 0)
+					{
+						speed--;
+					}
+					break;
+					
+					case LEFT_CLICK:
+					if(direction == MOTOR_CW && speed == 0)
 					{
 						direction = MOTOR_CCW;
-					} else {
+					}
+					break;
+					
+					case RIGHT_CLICK:
+					if(direction == MOTOR_CCW && speed == 0)
+					{
 						direction = MOTOR_CW;
 					}
-				} else {
-					speed--;
+					break;
 				}
+				motor_send_command(MOTOR_TWO, direction, speed);
+				
+				if(direction == MOTOR_CW)
+				{
+					lcd_add_string_to_buffer(1, 0, "CW ");
+				}
+				
+				if(direction == MOTOR_CCW)
+				{
+					lcd_add_string_to_buffer(1, 0, "CCW");
+				}
+				
+				write_3_char_int_to_buffer (7, 0, speed );
 			}
-			
-			motor_send_command(MOTOR_TWO, direction, speed);
-			
-			if(direction == MOTOR_CW)
-			{
-				lcd_add_string_to_buffer(1, 0, "CW ");
-			}
-
-			if(direction == MOTOR_CCW)
-			{
-				lcd_add_string_to_buffer(1, 0, "CCW");
-			}
-
-			write_3_char_int_to_buffer (7, 0, speed );
 		}
+		
+		// if(up_clicks)
+		// {
+		// 	//typedef struct {INT8U motor; INT8U direction; INT8U speed} motor_command;
+		// 	
+		// 	if( cdir == 1)
+		// 	{
+		// 		if(speed >= 49)
+		// 		{
+		// 			cdir = 0;
+		// 		} else {
+		// 			speed++;
+		// 		}
+		// 	} else {
+		// 		if(speed == 0)
+		// 		{
+		// 			cdir = 1;
+		// 			if(direction == MOTOR_CW)
+		// 			{
+		// 				direction = MOTOR_CCW;
+		// 			} else {
+		// 				direction = MOTOR_CW;
+		// 			}
+		// 		} else {
+		// 			speed--;
+		// 		}
+		// 	}
+		// 	
+		// 	motor_send_command(MOTOR_TWO, direction, speed);
+		// 	
+		// 	if(direction == MOTOR_CW)
+		// 	{
+		// 		lcd_add_string_to_buffer(1, 0, "CW ");
+		// 	}
+		// 
+		// 	if(direction == MOTOR_CCW)
+		// 	{
+		// 		lcd_add_string_to_buffer(1, 0, "CCW");
+		// 	}
+		// 
+		// 	write_3_char_int_to_buffer (7, 0, speed );
+		// }
 		
 		
 		// Position
@@ -354,6 +411,13 @@ int main(void) {
 	
 	spi_output_queue = xQueueCreate(128, sizeof( INT16U ) );
 	if (spi_output_queue == NULL)
+	{
+		led_red_on();
+		while(1);
+	}
+	
+	ui_event_queue = xQueueCreate(16, sizeof( ui_event ) );
+	if (ui_event_queue == NULL)
 	{
 		led_red_on();
 		while(1);

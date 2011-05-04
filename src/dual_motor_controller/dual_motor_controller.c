@@ -110,19 +110,22 @@ INT8U motor_get_direction( INT8U m )
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
+	INT8U return_value = MOTOR_CW;
+	
 	if(m == MOTOR_ONE)
 	{
 		xSemaphoreTake(motor_one_direction_mutex, portMAX_DELAY );
-		return motor_one_direction;
+		return_value = motor_one_direction;
 		xSemaphoreGive(motor_one_direction_mutex);
 	}
 
 	if(m == MOTOR_TWO)
 	{
 		xSemaphoreTake(motor_two_direction_mutex, portMAX_DELAY );
-		return motor_two_direction;
+		return_value = motor_two_direction;
 		xSemaphoreGive(motor_two_direction_mutex);
 	}
+	return return_value;
 }
 
 INT16U motor_get_speed( INT8U m )
@@ -130,19 +133,21 @@ INT16U motor_get_speed( INT8U m )
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
+	INT8U return_value = 0;
 	if(m == MOTOR_ONE)
 	{
 		xSemaphoreTake(motor_one_speed_mutex, portMAX_DELAY );
-		return motor_one_speed;
+		return_value = motor_one_speed;
 		xSemaphoreGive(motor_one_speed_mutex);
 	}
 	
 	if(m == MOTOR_TWO)
 	{
 		xSemaphoreTake(motor_two_speed_mutex, portMAX_DELAY );
-		return motor_two_speed;
+		return_value = motor_two_speed;
 		xSemaphoreGive(motor_two_speed_mutex);
 	}
+	return return_value;
 }
 
 INT16U motor_get_position( INT8U m )
@@ -150,19 +155,21 @@ INT16U motor_get_position( INT8U m )
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
+	INT8U return_value = 0;
 	if(m == MOTOR_ONE)
 	{
 		xSemaphoreTake(motor_one_position_mutex, portMAX_DELAY );
-		return motor_one_position;
+		return_value = motor_one_position;
 		xSemaphoreGive(motor_one_position_mutex);
 	}
 
 	if(m == MOTOR_TWO)
 	{
 		xSemaphoreTake(motor_two_position_mutex, portMAX_DELAY );
-		return motor_two_position;
+		return_value = motor_two_position;
 		xSemaphoreGive(motor_two_position_mutex);
 	}
+	return return_value;
 }
 
 void motor_send_command(INT8U m, INT8U d, INT8U s)
