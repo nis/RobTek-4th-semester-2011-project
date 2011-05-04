@@ -95,10 +95,13 @@ void vUserTask3(void *pvParameters) {
 	INT8U cdir = 1;
 	motor_command command;
 	
-	command.motor = MOTOR_TWO;
-	command.direction = direction;
-	command.speed = speed;
-	xQueueSend(motor_command_queue, &command, 0);
+	// command.motor = MOTOR_TWO;
+	// command.direction = direction;
+	// command.speed = speed;
+	// xQueueSend(motor_command_queue, &command, 0);
+	
+	motor_send_command(MOTOR_ONE, MOTOR_CW, 0);
+	motor_send_command(MOTOR_TWO, MOTOR_CW, 0);
 	
 	while (1) {
 		
@@ -131,10 +134,7 @@ void vUserTask3(void *pvParameters) {
 				}
 			}
 			
-			command.motor = MOTOR_TWO;
-			command.direction = direction;
-			command.speed = speed;
-			xQueueSend(motor_command_queue, &command, 0);
+			motor_send_command(MOTOR_TWO, direction, speed);
 			
 			if(direction == MOTOR_CW)
 			{
@@ -149,39 +149,57 @@ void vUserTask3(void *pvParameters) {
 			write_3_char_int_to_buffer (7, 0, speed );
 		}
 		
-		if(uxQueueMessagesWaiting(motor_event_queue) != 0)
+		
+		// Position
+		write_5_char_int_to_buffer (11, 1, motor_get_position( MOTOR_TWO ) );
+		
+		// Speed
+		write_5_char_int_to_buffer (5, 1, motor_get_speed( MOTOR_TWO ) );
+		
+		// Direction
+		if(motor_get_direction( MOTOR_TWO ) == MOTOR_CW)
 		{
-			motor_event event;
-			
-			if(xQueueReceive(motor_event_queue, &event, 0) == pdPASS)
-			{
-				if(event.motor == MOTOR_TWO)
-				{
-					if(event.type == MOTOR_POS)
-					{
-						// Position
-						write_5_char_int_to_buffer (11, 1, event.value );
-					}
-
-					if(event.type == MOTOR_SPEED)
-					{
-						// Speed
-						write_5_char_int_to_buffer (5, 1, event.value );
-						
-						// Direction
-						if(event.direction == MOTOR_CW)
-						{
-							lcd_add_string_to_buffer(1, 1, "CW ");
-						}
-						
-						if(event.direction == MOTOR_CCW)
-						{
-							lcd_add_string_to_buffer(1, 1, "CCW");
-						}
-					}
-				}
-			}
+			lcd_add_string_to_buffer(1, 1, "CW ");
 		}
+		
+		if(motor_get_direction( MOTOR_TWO ) == MOTOR_CCW)
+		{
+			lcd_add_string_to_buffer(1, 1, "CCW");
+		}
+		
+		// if(uxQueueMessagesWaiting(motor_event_queue) != 0)
+		// {
+		// 	motor_event event;
+		// 	
+		// 	if(xQueueReceive(motor_event_queue, &event, 0) == pdPASS)
+		// 	{
+		// 		if(event.motor == MOTOR_TWO)
+		// 		{
+		// 			if(event.type == MOTOR_POS)
+		// 			{
+		// 				// Position
+		// 				write_5_char_int_to_buffer (11, 1, event.value );
+		// 			}
+		// 
+		// 			if(event.type == MOTOR_SPEED)
+		// 			{
+		// 				// Speed
+		// 				write_5_char_int_to_buffer (5, 1, event.value );
+		// 				
+		// 				// Direction
+		// 				if(event.direction == MOTOR_CW)
+		// 				{
+		// 					lcd_add_string_to_buffer(1, 1, "CW ");
+		// 				}
+		// 				
+		// 				if(event.direction == MOTOR_CCW)
+		// 				{
+		// 					lcd_add_string_to_buffer(1, 1, "CCW");
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
 		
 		vTaskDelay(10) ;
 	}

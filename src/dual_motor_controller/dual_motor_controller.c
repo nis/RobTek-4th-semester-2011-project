@@ -165,6 +165,18 @@ INT16U motor_get_position( INT8U m )
 	}
 }
 
+void motor_send_command(INT8U m, INT8U d, INT8U s)
+/*****************************************************************************
+*   Function : See module specification (.h-file).
+*****************************************************************************/
+{
+	motor_command c;
+	c.motor = m;
+	c.direction = d;
+	c.speed = s;
+	xQueueSend(motor_command_queue, &c, 0);
+}
+
 void dual_motor_receive_task()
 /*****************************************************************************
 *   Function : See module specification (.h-file).

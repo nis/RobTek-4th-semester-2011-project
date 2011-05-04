@@ -43,6 +43,11 @@ INT16U motor_get_position( INT8U m );
 *   Function : Gets the position for motor m as lastly reported from the FPGA.
 *****************************************************************************/
 
+void motor_send_command(INT8U m, INT8U d, INT8U s);
+/*****************************************************************************
+*   Function : Sends the speed and direction to the command queue.
+*****************************************************************************/
+
 void dual_motor_receive_task();
 /*****************************************************************************
 *   Function : Gets motorevents from the queue and parses them.
