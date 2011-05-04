@@ -229,7 +229,7 @@ void protocol_task_runner(void *pvParameters) {
  */
 void motor_task(void *pvParameters) {
 	while (1) {
-		dual_motor_task();
+		dual_motor_receive_task();
 		vTaskDelay(10) ;
 	}
 }

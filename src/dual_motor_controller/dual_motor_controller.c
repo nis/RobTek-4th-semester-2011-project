@@ -165,7 +165,7 @@ INT16U motor_get_position( INT8U m )
 	}
 }
 
-void dual_motor_task()
+void dual_motor_receive_task()
 /*****************************************************************************
 *   Function : See module specification (.h-file).
 *****************************************************************************/

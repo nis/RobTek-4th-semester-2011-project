@@ -43,9 +43,9 @@ INT16U motor_get_position( INT8U m );
 *   Function : Gets the position for motor m as lastly reported from the FPGA.
 *****************************************************************************/
 
-void dual_motor_task();
+void dual_motor_receive_task();
 /*****************************************************************************
-*   Function : Gets motorevenst from the queue and parses them.
+*   Function : Gets motorevents from the queue and parses them.
 *****************************************************************************/
 
 void init_dual_motor_controller();
