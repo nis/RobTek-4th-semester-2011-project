@@ -22,6 +22,7 @@
 #include "buttons/buttons.h"
 #include "emp_fpga_protocol/emp_fpga_protocol.h"
 #include "dual_motor_controller/dual_motor_controller.h"
+#include "uart/uart.h"
 
 // all mutex used in this c program
 xSemaphoreHandle lcd_buffer_mutex;
@@ -39,6 +40,7 @@ xQueueHandle motor_command_queue;
 xQueueHandle spi_input_queue;
 xQueueHandle spi_output_queue;
 xQueueHandle ui_event_queue;
+xQueueHandle uart_command_queue;
 
 #define USERTASK_STACK_SIZE configMINIMAL_STACK_SIZE
 
@@ -54,6 +56,7 @@ static void setupHardware(void) {
 	init_buttons();
 	init_spi();
 	init_lcd_write_task();
+	init_uart0();
 	
 	enable_global_int();
 	
@@ -310,6 +313,18 @@ void motor_task(void *pvParameters) {
 }
 
 /**
+ * UART0 receive task
+ */
+void uart0_receive_task_runner(void *pvParameters)
+{
+	while (1)
+	{
+		uart0_receive_task();
+		vTaskDelay(10);
+	}
+}
+
+/**
  * Program entry point 
  */
 int main(void) {
@@ -325,6 +340,7 @@ int main(void) {
 	xTaskCreate( spi_task, ( signed portCHAR * ) "Task5", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	xTaskCreate( protocol_task_runner, ( signed portCHAR * ) "Task6", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	xTaskCreate( motor_task, ( signed portCHAR * ) "Task7", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+	xTaskCreate( uart0_receive_task_runner, ( signed portCHAR * ) "Task8", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	
 	/* 
 	 * Setup semaphores.
@@ -418,6 +434,13 @@ int main(void) {
 	
 	ui_event_queue = xQueueCreate(16, sizeof( ui_event ) );
 	if (ui_event_queue == NULL)
+	{
+		led_red_on();
+		while(1);
+	}
+
+	uart_command_queue = xQueueCreate(16, sizeof( uart_command ) );
+	if (uart_command_queue == NULL)
 	{
 		led_red_on();
 		while(1);

@@ -44,6 +44,13 @@
 		#define MOTOR_CW 0
 		#define MOTOR_CCW 1
 		
+	// UART commands
+		// Types
+		#define UART_COMMAND_POSITION 0
+		
+		// Keys
+		#define UART_COMMAND_X_AXIS 0
+		#define UART_COMMAND_Y_AXIS 1
 		
 
 /*****************************   Constants   *******************************/
@@ -54,6 +61,7 @@
 typedef struct {INT8U type; INT8U motor; INT16U value; INT8U direction;} motor_event;
 typedef struct {INT8U motor; INT8U direction; INT8U speed} motor_command;
 typedef struct {INT8U event; INT16U key; INT16U value;} ui_event;
+typedef struct {INT8U type; INT8U key; INT16U value;} uart_command;
 
 // all mutex used in this c program
 extern xSemaphoreHandle lcd_buffer_mutex;
@@ -71,6 +79,7 @@ extern xQueueHandle motor_command_queue;
 extern xQueueHandle spi_input_queue;
 extern xQueueHandle spi_output_queue;
 extern xQueueHandle ui_event_queue;
+extern xQueueHandle uart_command_queue;
 
 /*****************************   Functions   *******************************/
 
