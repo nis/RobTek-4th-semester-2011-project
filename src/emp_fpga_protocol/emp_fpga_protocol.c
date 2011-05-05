@@ -56,8 +56,6 @@ void protocol_send_task (void)
 			package = command.speed + 50;
 		}
 		
-		write_5_char_int_to_buffer (11, 0, package );
-		
 		if(command.motor == MOTOR_TWO)
 		{
 			SET_BIT(package, 14);
