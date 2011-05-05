@@ -23,6 +23,7 @@
 #include "emp_fpga_protocol/emp_fpga_protocol.h"
 #include "dual_motor_controller/dual_motor_controller.h"
 #include "uart/uart.h"
+#include "regulation/regulation.h"
 
 // all mutex used in this c program
 xSemaphoreHandle lcd_buffer_mutex;
@@ -94,119 +95,65 @@ void vUserTask3(void *pvParameters) {
 	lcd_add_string_to_buffer(0, 0, "                ");
 	lcd_add_string_to_buffer(0, 1, "                ");
 	
-	portBASE_TYPE status;
-	ui_event event;
-	
-	INT8U speed = 0;
-	INT8U direction = MOTOR_CW;
-	INT8U cdir = 1;
-	// motor_command command;
-	
-	// command.motor = MOTOR_TWO;
-	// command.direction = direction;
-	// command.speed = speed;
-	// xQueueSend(motor_command_queue, &command, 0);
-	
 	motor_send_command(MOTOR_ONE, MOTOR_CW, 0);
 	motor_send_command(MOTOR_TWO, MOTOR_CW, 0);
 	
 	while (1) {
 		
-		// INT8U up_clicks = get_up_clicks();
-		// 		INT8U down_clicks = get_down_clicks();
+
 		
-		if(uxQueueMessagesWaiting(ui_event_queue) != 0)
-		{
-			status = xQueueReceive(ui_event_queue, &event, 0);
-			
-			if(status == pdPASS)
-			{
-				switch ( event.event )
-				{
-					case UP_CLICK:
-					if(speed < 49)
-					{
-						speed++;
-					}
-					break;
-					
-					case DOWN_CLICK:
-					if(speed > 0)
-					{
-						speed--;
-					}
-					break;
-					
-					case LEFT_CLICK:
-					if(direction == MOTOR_CW && speed == 0)
-					{
-						direction = MOTOR_CCW;
-					}
-					break;
-					
-					case RIGHT_CLICK:
-					if(direction == MOTOR_CCW && speed == 0)
-					{
-						direction = MOTOR_CW;
-					}
-					break;
-				}
-				motor_send_command(MOTOR_TWO, direction, speed);
-				
-				if(direction == MOTOR_CW)
-				{
-					lcd_add_string_to_buffer(1, 0, "CW ");
-				}
-				
-				if(direction == MOTOR_CCW)
-				{
-					lcd_add_string_to_buffer(1, 0, "CCW");
-				}
-				
-				write_3_char_int_to_buffer (7, 0, speed );
-			}
-		}
-		
-		// if(up_clicks)
+		// Events from buttons
+		// if(uxQueueMessagesWaiting(ui_event_queue) != 0)
 		// {
-		// 	//typedef struct {INT8U motor; INT8U direction; INT8U speed} motor_command;
+		// 	status = xQueueReceive(ui_event_queue, &event, 0);
 		// 	
-		// 	if( cdir == 1)
+		// 	if(status == pdPASS)
 		// 	{
-		// 		if(speed >= 49)
+		// 		switch ( event.event )
 		// 		{
-		// 			cdir = 0;
-		// 		} else {
-		// 			speed++;
-		// 		}
-		// 	} else {
-		// 		if(speed == 0)
-		// 		{
-		// 			cdir = 1;
-		// 			if(direction == MOTOR_CW)
+		// 			case UP_CLICK:
+		// 			if(speed < 49)
+		// 			{
+		// 				speed++;
+		// 			}
+		// 			break;
+		// 			
+		// 			case DOWN_CLICK:
+		// 			if(speed > 0)
+		// 			{
+		// 				speed--;
+		// 			}
+		// 			break;
+		// 			
+		// 			case LEFT_CLICK:
+		// 			if(direction == MOTOR_CW && speed == 0)
 		// 			{
 		// 				direction = MOTOR_CCW;
-		// 			} else {
+		// 			}
+		// 			break;
+		// 			
+		// 			case RIGHT_CLICK:
+		// 			if(direction == MOTOR_CCW && speed == 0)
+		// 			{
 		// 				direction = MOTOR_CW;
 		// 			}
-		// 		} else {
-		// 			speed--;
+		// 			break;
 		// 		}
+		// 		
+		// 		motor_send_command(MOTOR_TWO, direction, speed);
+		// 		
+		// 		if(direction == MOTOR_CW)
+		// 		{
+		// 			lcd_add_string_to_buffer(1, 0, "CW ");
+		// 		}
+		// 		
+		// 		if(direction == MOTOR_CCW)
+		// 		{
+		// 			lcd_add_string_to_buffer(1, 0, "CCW");
+		// 		}
+		// 		
+		// 		write_3_char_int_to_buffer (7, 0, speed );
 		// 	}
-		// 	
-		// 	motor_send_command(MOTOR_TWO, direction, speed);
-		// 	
-		// 	if(direction == MOTOR_CW)
-		// 	{
-		// 		lcd_add_string_to_buffer(1, 0, "CW ");
-		// 	}
-		// 
-		// 	if(direction == MOTOR_CCW)
-		// 	{
-		// 		lcd_add_string_to_buffer(1, 0, "CCW");
-		// 	}
-		// 
-		// 	write_3_char_int_to_buffer (7, 0, speed );
 		// }
 		
 		
@@ -226,40 +173,6 @@ void vUserTask3(void *pvParameters) {
 		{
 			lcd_add_string_to_buffer(1, 1, "CCW");
 		}
-		
-		// if(uxQueueMessagesWaiting(motor_event_queue) != 0)
-		// {
-		// 	motor_event event;
-		// 	
-		// 	if(xQueueReceive(motor_event_queue, &event, 0) == pdPASS)
-		// 	{
-		// 		if(event.motor == MOTOR_TWO)
-		// 		{
-		// 			if(event.type == MOTOR_POS)
-		// 			{
-		// 				// Position
-		// 				write_5_char_int_to_buffer (11, 1, event.value );
-		// 			}
-		// 
-		// 			if(event.type == MOTOR_SPEED)
-		// 			{
-		// 				// Speed
-		// 				write_5_char_int_to_buffer (5, 1, event.value );
-		// 				
-		// 				// Direction
-		// 				if(event.direction == MOTOR_CW)
-		// 				{
-		// 					lcd_add_string_to_buffer(1, 1, "CW ");
-		// 				}
-		// 				
-		// 				if(event.direction == MOTOR_CCW)
-		// 				{
-		// 					lcd_add_string_to_buffer(1, 1, "CCW");
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// }
 		
 		vTaskDelay(10) ;
 	}
@@ -325,6 +238,18 @@ void uart0_receive_task_runner(void *pvParameters)
 }
 
 /**
+ * Regulation task
+ */
+void regulation_task_runner(void *pvParameters)
+{
+	while (1)
+	{
+		regulation_task();
+		vTaskDelay(10);
+	}
+}
+
+/**
  * Program entry point 
  */
 int main(void) {
@@ -341,6 +266,7 @@ int main(void) {
 	xTaskCreate( protocol_task_runner, ( signed portCHAR * ) "Task6", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	xTaskCreate( motor_task, ( signed portCHAR * ) "Task7", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	xTaskCreate( uart0_receive_task_runner, ( signed portCHAR * ) "Task8", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+	xTaskCreate( regulation_task_runner, ( signed portCHAR * ) "Task8", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	
 	/* 
 	 * Setup semaphores.
