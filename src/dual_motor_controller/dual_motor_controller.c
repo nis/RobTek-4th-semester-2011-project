@@ -40,8 +40,8 @@ INT16U motor_two_speed = 0;
 INT8U motor_one_direction = MOTOR_CW;
 INT8U motor_two_direction = MOTOR_CW;
 
-INT8U motor_one_position = 0;
-INT8U motor_two_position = 0;
+INT16U motor_one_position = 0;
+INT16U motor_two_position = 0;
 
 /*****************************   Functions   *******************************/
 
@@ -85,7 +85,7 @@ void set_speed( INT8U m, INT16U s )
 	}
 }
 
-void set_position( INT8U m, INT8U p )
+void set_position( INT8U m, INT16U p )
 /*****************************************************************************
 *   Function : Internal, sets position.
 *****************************************************************************/
@@ -133,7 +133,7 @@ INT16U motor_get_speed( INT8U m )
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
-	INT8U return_value = 0;
+	INT16U return_value = 0;
 	if(m == MOTOR_ONE)
 	{
 		xSemaphoreTake(motor_one_speed_mutex, portMAX_DELAY );
@@ -155,7 +155,7 @@ INT16U motor_get_position( INT8U m )
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
-	INT8U return_value = 0;
+	INT16U return_value = 0;
 	if(m == MOTOR_ONE)
 	{
 		xSemaphoreTake(motor_one_position_mutex, portMAX_DELAY );
