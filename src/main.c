@@ -24,6 +24,7 @@
 #include "dual_motor_controller/dual_motor_controller.h"
 #include "uart/uart.h"
 #include "regulation/regulation.h"
+#include "joystick/joystick.h"
 
 // all mutex used in this c program
 xSemaphoreHandle lcd_buffer_mutex;
@@ -58,6 +59,7 @@ static void setupHardware(void) {
 	init_spi();
 	init_lcd_write_task();
 	init_uart0();
+	init_joystick();
 	
 	enable_global_int();
 	
@@ -250,6 +252,20 @@ void regulation_task_runner(void *pvParameters)
 }
 
 /**
+ * Joystick task
+ */
+void joystick_task_runner(void *pvParameters)
+{
+	lcd_add_string_to_buffer(0, 0, "X: ");
+	lcd_add_string_to_buffer(8, 0, "Y: ");
+	while (1)
+	{
+		joystick_task();
+		vTaskDelay(10);
+	}
+}
+
+/**
  * Program entry point 
  */
 int main(void) {
@@ -267,6 +283,12 @@ int main(void) {
 	xTaskCreate( motor_task, ( signed portCHAR * ) "Task7", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	xTaskCreate( uart0_receive_task_runner, ( signed portCHAR * ) "Task8", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	xTaskCreate( regulation_task_runner, ( signed portCHAR * ) "Task8", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+	create_check = xTaskCreate( joystick_task_runner, ( signed portCHAR * ) "Joystick", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+	if (create_check != pdTRUE)
+	{
+		led_red_on();
+		while(1);
+	}
 	
 	/* 
 	 * Setup semaphores.
