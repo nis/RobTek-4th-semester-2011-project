@@ -177,7 +177,6 @@ void regulate(void)
 	INT16S new_speed = PIDcal ( 0, 1, 500, -500, 3, 10, 0, x_target_pos, cpos );
 	motor_new_command(MOTOR_X, new_speed);
 	write_5_char_int_to_buffer (11, 0, x_target_pos );
-	asdfgsdfg
 	
 	// Write speed
 	if(new_speed < 0)
