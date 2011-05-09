@@ -172,7 +172,33 @@ INT16U motor_get_position( INT8U m )
 	return return_value;
 }
 
-void motor_send_command(INT8U m, INT8U d, INT8U s)
+void motor_new_command(INT8U m, INT16S s)
+{
+	motor_command c;
+	c.motor = m;
+	
+	if(s > 500)
+	{
+		s = 500;
+	}
+	
+	if(s < -500)
+	{
+		s = -500;
+	}
+	
+	if(s < 0)
+	{
+		c.direction = MOTOR_CW;
+		c.speed = s * -1;
+	} else {
+		c.direction = MOTOR_CCW;
+		c.speed = s;
+	}
+	xQueueSend(motor_command_queue, &c, 0);
+}
+
+void motor_send_command(INT8U m, INT8U d, INT16U s)
 /*****************************************************************************
 *   Function : See module specification (.h-file).
 *****************************************************************************/

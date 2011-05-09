@@ -59,7 +59,7 @@
 
 // Structures
 typedef struct {INT8U type; INT8U motor; INT16U value; INT8U direction;} motor_event;
-typedef struct {INT8U motor; INT8U direction; INT8U speed;} motor_command;
+typedef struct {INT8U motor; INT8U direction; INT16U speed;} motor_command;
 typedef struct {INT8U event; INT16U key; INT16U value;} ui_event;
 typedef struct {INT8U type; INT8U key; INT16U value;} uart_command;
 

@@ -51,9 +51,9 @@ void protocol_send_task (void)
 		
 		if(command.direction == MOTOR_CW)
 		{
-			package = 50 - command.speed;
+			package = 500 - command.speed;
 		} else {
-			package = command.speed + 50;
+			package = command.speed + 500;
 		}
 		
 		if(command.motor == MOTOR_TWO)
@@ -65,11 +65,11 @@ void protocol_send_task (void)
 		SET_BIT(package, 15);
 		CLEAR_BIT(package, 13);
 		CLEAR_BIT(package, 12);
-		CLEAR_BIT(package, 11);
-		CLEAR_BIT(package, 10);
-		CLEAR_BIT(package, 9);
-		CLEAR_BIT(package, 8);
-		CLEAR_BIT(package, 7);
+		//CLEAR_BIT(package, 11);
+		//CLEAR_BIT(package, 10);
+		//CLEAR_BIT(package, 9);
+		//CLEAR_BIT(package, 8);
+		//CLEAR_BIT(package, 7);
 		
 		
 		xQueueSend(spi_output_queue, &package, 0);
