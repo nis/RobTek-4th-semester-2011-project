@@ -174,11 +174,9 @@ void regulate(void)
 	static INT8S old_speed = 0;
 	INT16U cpos =  motor_get_position(MOTOR_X);
 	//INT8U epsilon, INT8U dt, INT16S max, INT16S min, INT16U Kp, INT16U Kd, INT16U Ki, INT16U target, INT16U current )
-	INT16S new_speed = PIDcal ( 0, 1, 500, -500, 4, 20, 0, x_target_pos, cpos );
-	//INT16S new_speed = 0;
+	INT16S new_speed = PIDcal ( 0, 1, 500, -500, 3, 10, 0, x_target_pos, cpos );
 	motor_new_command(MOTOR_X, new_speed);
 	write_5_char_int_to_buffer (11, 0, x_target_pos );
-	//motor_send_command(MOTOR_X, MOTOR_CW, 500);
 	
 	// Write speed
 	if(new_speed < 0)
