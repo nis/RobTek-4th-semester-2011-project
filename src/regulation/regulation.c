@@ -171,143 +171,33 @@ void regulate(void)
 *   Function : The actual calculation of regulation.
 *****************************************************************************/
 {
-	static INT8S old_speed = 0;
-	INT16U cpos =  motor_get_position(MOTOR_X);
 	//INT8U epsilon, INT8U dt, INT16S max, INT16S min, INT16U Kp, INT16U Kd, INT16U Ki, INT16U target, INT16U current )
-	INT16S new_speed = PIDcal ( 0, 1, 500, -500, 3, 10, 0, x_target_pos, cpos );
-	motor_new_command(MOTOR_X, new_speed);
+	INT16S x_new_speed = PIDcal ( 0, 1, 500, -500, 3, 10, 0, x_target_pos, motor_get_position(MOTOR_X) );
+	motor_new_command(MOTOR_X, x_new_speed);
+	
+	
+	
+	
+	// Information
 	write_5_char_int_to_buffer (11, 0, x_target_pos );
 	
 	// Write speed
-	if(new_speed < 0)
+	if(x_new_speed < 0)
 	{
 		lcd_add_string_to_buffer(5, 0, "-");
 	} else {
 		lcd_add_string_to_buffer(5, 0, " ");
 	}
 	
-	write_3_char_int_to_buffer (7, 0, abs(new_speed) );
+	write_3_char_int_to_buffer (7, 0, abs(x_new_speed) );
 	
 	// Write direction
-	if(new_speed < 0)
+	if(x_new_speed < 0)
 	{
 		lcd_add_string_to_buffer(1, 0, "CW ");
 	} else {
 		lcd_add_string_to_buffer(1, 0, "CCW ");
 	}
-	
-	// Uart log
-	// if(new_speed != old_speed)
-	// {
-	// 	if(new_speed < 0)
-	// 	{
-	// 		uart_write_ch('-');
-	// 	}
-	// 	uart_write_ch((abs(new_speed) / 10) + 0x30);
-	// 	uart_write_ch((abs(new_speed) % 10) + 0x30);
-	// 	uart_write_ch(',');
-	// 	uart_write_ch(' ');
-	// }
-	
-	old_speed = new_speed;
-	
-	// static INT8U pos_init = 0;
-	// static INT8U x_old_speed = 0;
-	// INT16S x_delta_pos, y_delta_pos, x_old_delta_pos, y_old_delta_pos = 0;
-	// INT8U x_new_dir, y_new_dir = MOTOR_CW;
-	// INT16S x_new_speed, y_new_speed = 0;
-	// 
-	// x_current_pos = motor_get_position(MOTOR_X);
-	// y_current_pos = motor_get_position(MOTOR_Y);
-	// 
-	// if(pos_init == 0)
-	// {
-	// 	x_target_pos = x_current_pos;
-	// 	y_target_pos = y_current_pos;
-	// 	pos_init = 1;
-	// }
-	// 
-	// // x-axis
-	// // if(x_current_pos > x_target_pos)
-	// // {
-	// // 	x_delta_pos = x_current_pos - x_target_pos;
-	// // 	//x_new_dir = MOTOR_CW;
-	// // } else {
-	//  	x_delta_pos = x_target_pos - x_current_pos;
-	// // 	//x_new_dir = MOTOR_CCW;
-	// // }
-	// 
-	// INT16S derivative;
-	// 
-	// if(x_delta_pos > 49)
-	// {
-	// 	x_delta_pos = 49;
-	// } else if(x_delta_pos < -49)
-	// {
-	// 	x_delta_pos = -49;
-	// }
-	// 
-	// 
-	// 
-	// //derivative = (x_delta_pos - x_old_delta_pos)/dt;
-	// 
-	// 
-	// 
-	// //x_new_speed = (Kd * derivative + x_delta_pos) / 2;
-	// 
-	// if(x_new_speed < 0)
-	// {
-	// 	x_new_dir = MOTOR_CCW;
-	// 	x_new_speed = x_new_speed * -1;
-	// } else {
-	// 	x_new_dir = MOTOR_CW;
-	// }
-	// 
-	// if(x_new_speed > 29)
-	// {
-	// 	x_new_speed = 29;
-	// }
-	// 
-	// 
-	// 
-	// motor_send_command(MOTOR_X, x_new_dir, x_new_speed);
-	// 
-	// 
-	// if(x_old_speed != x_new_speed)
-	// {
-	// 	if(TEST_BIT_HIGH(x_delta_pos, 15))
-	// 	{
-	// 		uart_write_ch('-');
-	// 		CLEAR_BIT(x_delta_pos, 15);
-	// 	}
-	// 	uart_write_ch((x_delta_pos / 10) + 0x30);
-	// 	uart_write_ch((x_delta_pos % 10) + 0x30);
-	// 	uart_write_ch('|');
-	// 	uart_write_ch(' ');
-	// 	uart_write_ch((x_new_speed / 10) + 0x30);
-	// 	uart_write_ch((x_new_speed % 10) + 0x30);
-	// 	uart_write_ch(',');
-	// 	uart_write_ch(' ');
-	// }
-	// 
-	// x_old_speed = x_new_speed;
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// if(x_new_dir == MOTOR_CW)
-	// {
-	// 	lcd_add_string_to_buffer(1, 0, "CW ");
-	// }
-	// 
-	// if(x_new_dir == MOTOR_CCW)
-	// {
-	// 	lcd_add_string_to_buffer(1, 0, "CCW");
-	// }
-	// 
-	// write_3_char_int_to_buffer (7, 0, x_new_speed ); // Disable on production
 }
 
 void regulation_task(void)
