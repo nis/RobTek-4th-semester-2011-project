@@ -172,32 +172,35 @@ void regulate(void)
 *****************************************************************************/
 {
 	//INT8U epsilon, INT8U dt, INT16S max, INT16S min, INT16U Kp, INT16U Kd, INT16U Ki, INT16U target, INT16U current )
+	
+	// x-axis regulation
 	INT16S x_new_speed = PIDcal ( 0, 1, 500, -500, 3, 10, 0, x_target_pos, motor_get_position(MOTOR_X) );
 	motor_new_command(MOTOR_X, x_new_speed);
 	
+	// y-axis regulation
+	INT16S y_new_speed = PIDcal ( 0, 1, 500, -500, 3, 10, 0, y_target_pos, motor_get_position(MOTOR_Y) );
+	motor_new_command(MOTOR_Y, y_new_speed);
 	
-	
-	
-	// Information
-	write_5_char_int_to_buffer (11, 0, x_target_pos );
-	
-	// Write speed
-	if(x_new_speed < 0)
-	{
-		lcd_add_string_to_buffer(5, 0, "-");
-	} else {
-		lcd_add_string_to_buffer(5, 0, " ");
-	}
-	
-	write_3_char_int_to_buffer (7, 0, abs(x_new_speed) );
-	
-	// Write direction
-	if(x_new_speed < 0)
-	{
-		lcd_add_string_to_buffer(1, 0, "CW ");
-	} else {
-		lcd_add_string_to_buffer(1, 0, "CCW ");
-	}
+	// // Information
+	// write_5_char_int_to_buffer (11, 0, x_target_pos );
+	// 
+	// // Write speed
+	// if(x_new_speed < 0)
+	// {
+	// 	lcd_add_string_to_buffer(5, 0, "-");
+	// } else {
+	// 	lcd_add_string_to_buffer(5, 0, " ");
+	// }
+	// 
+	// write_3_char_int_to_buffer (7, 0, abs(x_new_speed) );
+	// 
+	// // Write direction
+	// if(x_new_speed < 0)
+	// {
+	// 	lcd_add_string_to_buffer(1, 0, "CW ");
+	// } else {
+	// 	lcd_add_string_to_buffer(1, 0, "CCW ");
+	// }
 }
 
 void regulation_task(void)
