@@ -184,7 +184,10 @@ void working_task(void *pvParameters) {
  * LCD task
  */
 void vUserTask4(void *pvParameters) {
-     
+    
+	lcd_add_string_to_buffer(0, 0, "                ");
+	lcd_add_string_to_buffer(0, 1, "                ");
+
     while (1) {
         lcd_write_task();
          
