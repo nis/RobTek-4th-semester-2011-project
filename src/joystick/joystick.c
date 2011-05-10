@@ -30,22 +30,27 @@
 
 /*****************************    Defines    *******************************/
 
-#define BUFFER_SIZE 10
+#define BUFFER_SIZE 5
 
 // Hardware defines
-#define AX_LOWER_LIMIT 110
-#define AY_LOWER_LIMIT 130
-#define ZERO_POINT_SPREAD 150
+#define AXIS_START_LIMITS 20
+#define AXIS_DEADBAND 15
+
+// Virtual 2D space
+#define VIRTUAL_SPACE_DIMENSIONS 1079
+#define VIRTUAL_SPACE_SCALE_FACTOR 150
 
 /*****************************   Constants   *******************************/
 
 /*****************************   Variables   *******************************/
 
+// Virtual space variables
+INT32U x_v_pos = VIRTUAL_SPACE_DIMENSIONS * VIRTUAL_SPACE_SCALE_FACTOR / 2;
+INT32U y_v_pos = VIRTUAL_SPACE_DIMENSIONS * VIRTUAL_SPACE_SCALE_FACTOR / 2;
+
+// Joystick variables
 INT16U x_current = 0;
 INT16U y_current = 0;
-
-INT8S x_rel = 0;
-INT8S y_rel = 0;
 
 INT16U x_values[BUFFER_SIZE];
 INT8U x_pointer = 0;
@@ -53,54 +58,276 @@ INT8U x_pointer = 0;
 INT16U y_values[BUFFER_SIZE];
 INT8U y_pointer = 0;
 
-INT16U x_zero_point = 579;
+INT16S x_speed_lower_limit = -AXIS_START_LIMITS;
+INT16S x_speed_upper_limit = AXIS_START_LIMITS;
+INT8U x_deadband = AXIS_DEADBAND;
 INT8U x_pos_stepsize, x_neg_stepsize = 0;
 
+INT16S y_speed_lower_limit = -AXIS_START_LIMITS;
+INT16S y_speed_upper_limit = AXIS_START_LIMITS;
+INT8U y_deadband = AXIS_DEADBAND;
+INT8U y_pos_stepsize, y_neg_stepsize = 0;
+
+INT16S x_speed = 0;
+INT16S y_speed = 0;
+INT8S x_rel_speed = 0;
+INT8S y_rel_speed = 0;
+
+INT8U x_initialized = 0;
+INT8U y_initialized = 0;
+
 /*****************************   Functions   *******************************/
+
+INT16U jabs(INT16S n)
+/*****************************************************************************
+*   Function : Calculates absolute value.
+*****************************************************************************/
+{
+	INT16U return_value;
+	
+	if(n < 0)
+	{
+		return_value = n * -1;
+	} else {
+		return_value =  n;
+	}
+	
+	return return_value;
+}
+
+void calculate_v_space ( void )
+/*****************************************************************************
+*   Function : Calculates the virtual pointer in 2D space.
+*****************************************************************************/
+{
+	// Calculate x-axis position in virtual space
+	if(x_rel_speed < 0)
+	{
+		if(jabs(x_rel_speed) > x_v_pos)
+		{
+			x_v_pos = 0;
+		} else {
+			x_v_pos += x_rel_speed;
+		}
+	} else {
+		if((VIRTUAL_SPACE_DIMENSIONS * VIRTUAL_SPACE_SCALE_FACTOR - x_v_pos) < x_rel_speed)
+		{
+			x_v_pos = VIRTUAL_SPACE_DIMENSIONS * VIRTUAL_SPACE_SCALE_FACTOR;
+		} else {
+			x_v_pos += x_rel_speed;
+		}
+	}
+	
+	// Calculate y-axis position in virtual space
+	if(y_rel_speed < 0)
+	{
+		if(jabs(y_rel_speed) > y_v_pos)
+		{
+			y_v_pos = 0;
+		} else {
+			y_v_pos += y_rel_speed;
+		}
+	} else {
+		if((VIRTUAL_SPACE_DIMENSIONS * VIRTUAL_SPACE_SCALE_FACTOR - y_v_pos) < y_rel_speed)
+		{
+			y_v_pos = VIRTUAL_SPACE_DIMENSIONS * VIRTUAL_SPACE_SCALE_FACTOR;
+		} else {
+			y_v_pos += y_rel_speed;
+		}
+	}
+	
+	// Write to LCD
+	write_5_char_int_to_buffer (10, 0, (x_v_pos / VIRTUAL_SPACE_SCALE_FACTOR) );
+	write_5_char_int_to_buffer (10, 1, (y_v_pos / VIRTUAL_SPACE_SCALE_FACTOR) );
+}
+
+INT8S clean_y_speed ( void )
+/*****************************************************************************
+*   Function : See module specification (.h-file).
+*****************************************************************************/
+{
+	INT16S o = y_speed;
+	
+	// Calculate stepsize
+	if(y_neg_stepsize == 0)
+	{
+		y_neg_stepsize = jabs(y_speed_lower_limit) / 100;
+	}
+	
+	if(y_pos_stepsize == 0)
+	{
+		y_pos_stepsize = y_speed_upper_limit / 100;
+	}
+	
+	// Calculate stepsize if new limits
+	if(y_speed < y_speed_lower_limit)
+	{
+		y_speed_lower_limit = y_speed;
+		
+		// Calculate negative stepsize
+		y_neg_stepsize = jabs(y_speed_lower_limit) / 100;
+	}
+	
+	if(y_speed > y_speed_upper_limit)
+	{
+		y_speed_upper_limit = y_speed;
+		
+		// Calculate positive stepsize
+		y_pos_stepsize = jabs(y_speed_upper_limit) / 100;
+	}
+	
+	// Calculate relative speeds
+	if(o < 0)
+	{
+		o = o / y_neg_stepsize;
+	} else {
+		o = o / y_pos_stepsize;
+	}
+	
+	// Deadband
+	if(jabs(o) < y_deadband)
+	{
+		o = 0;
+	} else {
+		if(o < 0)
+		{
+			o += y_deadband;
+		} else {
+			o -= y_deadband;
+		}
+	}
+	
+	// Saturation
+	if(o < -99)
+	{
+		o = -99;
+	}
+	
+	if(o > 99)
+	{
+		o = 99;
+	}
+	
+	return o;
+}
+
+INT8S clean_x_speed ( void )
+/*****************************************************************************
+*   Function : See module specification (.h-file).
+*****************************************************************************/
+{
+	INT16S o = x_speed;
+	
+	// Calculate stepsize
+	if(x_neg_stepsize == 0)
+	{
+		x_neg_stepsize = jabs(x_speed_lower_limit) / 100;
+	}
+	
+	if(x_pos_stepsize == 0)
+	{
+		x_pos_stepsize = x_speed_upper_limit / 100;
+	}
+	
+	// Calculate stepsize if new limits
+	if(x_speed < x_speed_lower_limit)
+	{
+		x_speed_lower_limit = x_speed;
+		
+		// Calculate negative stepsize
+		x_neg_stepsize = jabs(x_speed_lower_limit) / 100;
+	}
+	
+	if(x_speed > x_speed_upper_limit)
+	{
+		x_speed_upper_limit = x_speed;
+		
+		// Calculate positive stepsize
+		x_pos_stepsize = jabs(x_speed_upper_limit) / 100;
+	}
+	
+	// Calculate relative speeds
+	if(o < 0)
+	{
+		o = o / x_neg_stepsize;
+	} else {
+		o = o / x_pos_stepsize;
+	}
+	
+	// Deadband
+	if(jabs(o) < x_deadband)
+	{
+		o = 0;
+	} else {
+		if(o < 0)
+		{
+			o += x_deadband;
+		} else {
+			o -= x_deadband;
+		}
+	}
+	
+	// Saturation
+	if(o < -99)
+	{
+		o = -99;
+	}
+	
+	if(o > 99)
+	{
+		o = 99;
+	}
+	
+	return o;
+}
 
 void x_avg_calc ( void )
 /*****************************************************************************
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
+	static INT16S x_old_pos = 0;
+	static INT8S old_rel_speed = 120;
+	
 	INT8U i;
 	INT32U temp = 0;
-	
 	for( i = 0; i < BUFFER_SIZE; i++)
 	{
 		temp += x_values[i];
 	}
-	
 	x_current = temp / BUFFER_SIZE;
 	
-	if(x_pos_stepsize != 0 && x_neg_stepsize != 0)
+	if(x_initialized)
 	{
-		// Calcualte a value from 0-100
-		if(x_current >= (x_zero_point - ZERO_POINT_SPREAD) && x_current <= (x_zero_point + ZERO_POINT_SPREAD))
+		if(x_old_pos == 0)
 		{
-			x_rel = 0;
-		} else if(x_current > (x_zero_point + ZERO_POINT_SPREAD))
-		{
-			// Negative value.
-			// For x-axis 1023 to (x_zero_point - ZERO_POINT_SPREAD)
-			if(x_current > 1023)
-			{
-				x_rel = -100;
-			} else {
-				x_rel = x_current / x_neg_stepsize;
-			}
-		} else if(x_current < (x_zero_point - ZERO_POINT_SPREAD))
-		{
-			// Positive value.
-			// For x-axis AX_LOWER_LIMIT to (x_zero_point - ZERO_POINT_SPREAD)
-			
-			if(x_current < AX_LOWER_LIMIT)
-			{
-				x_rel = 100;
-			} else {
-				x_rel = x_current / x_pos_stepsize;
-			}
+			x_old_pos = x_current;
 		}
+		
+		INT16S dpos = x_current - x_old_pos;
+		INT16U a_dpos = jabs(dpos);
+		
+		
+		if(dpos > 0 && a_dpos > 5)
+		{
+			// Negative delta-pos
+			x_speed -= (a_dpos);
+			x_old_pos = x_current;
+		}
+
+		if(dpos < 0 && a_dpos > 5)
+		{	
+			// Positive delta-pos
+			x_speed += (a_dpos);
+			x_old_pos = x_current;
+		}
+	}
+
+	x_rel_speed = clean_x_speed();
+	if(x_rel_speed != old_rel_speed)
+	{
+		write_2_char_signed_int_to_buffer (1, 0, x_rel_speed);
+		old_rel_speed = x_rel_speed;
 	}
 }
 
@@ -109,27 +336,49 @@ void y_avg_calc ( void )
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
+	static INT16S y_old_pos = 0;
+	static INT8S old_rel_speed = 120;
+	
 	INT8U i;
 	INT32U temp = 0;
-	
 	for( i = 0; i < BUFFER_SIZE; i++)
 	{
 		temp += y_values[i];
 	}
-	
 	y_current = temp / BUFFER_SIZE;
-}
+	
+	if(y_initialized)
+	{
+		if(y_old_pos == 0)
+		{
+			y_old_pos = y_current;
+		}
+		
+		INT16S dpos = y_current - y_old_pos;
+		INT16U a_dpos = jabs(dpos);
+		
+		
+		if(dpos > 0 && a_dpos > 5)
+		{
+			// Negative delta-pos
+			y_speed -= (a_dpos);
+			y_old_pos = y_current;
+		}
 
-void x_stepsize_calc( void )
-/*****************************************************************************
-*   Function : Calcualtes the negative and the positive stepsizes for x.
-*****************************************************************************/
-{
-	//x_zero_point = x_current;
-	
-	x_pos_stepsize = ((x_zero_point - ZERO_POINT_SPREAD) - AX_LOWER_LIMIT) / 100;
-	
-	x_neg_stepsize = (1023 - (x_zero_point + ZERO_POINT_SPREAD)) / 100;
+		if(dpos < 0 && a_dpos > 5)
+		{	
+			// Positive delta-pos
+			y_speed += (a_dpos);
+			y_old_pos = y_current;
+		}
+	}
+
+	y_rel_speed = clean_y_speed();
+	if(y_rel_speed != old_rel_speed)
+	{
+		write_2_char_signed_int_to_buffer (1, 1, y_rel_speed);
+		old_rel_speed = y_rel_speed;
+	}
 }
 
 void joystick_task( void )
@@ -137,7 +386,7 @@ void joystick_task( void )
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
-	static INT8U calc_counter = 0;
+	//static INT8U calc_counter = 0;
 	
 	ADC_PSSI_R |= ADC_PSSI_SS0;
 	
@@ -148,28 +397,14 @@ void joystick_task( void )
 		//Data is read from ADC_SSFIFO0_R, with mask ADC_SSFIFO0_DATA_M (0x03FF)
 		if(ADC_SSMUX0_R == 2)
 		{
-			
 			if(x_pointer >= BUFFER_SIZE)
 			{
+				x_initialized = 1;
 				x_pointer = 0;
-				if(x_pos_stepsize == 0 && x_neg_stepsize == 0)
-				{
-					if(calc_counter < 10)
-					{
-						// Calcualate stepsizes.
-						x_stepsize_calc();
-					} else {
-						calc_counter++;
-					}
-				}
 			}
 			x_values[x_pointer] = ADC_SSFIFO0_R & ADC_SSFIFO0_DATA_M;
 			x_pointer++;
 			x_avg_calc();
-			
-			write_3_char_signed_int_to_buffer (3, 1, x_rel );
-			//write_3_char_int_to_buffer (12, 1, x_neg_stepsize );
-			write_4_char_int_to_buffer (3, 0, x_current );
 			
 			ADC_SSMUX0_R = 3;
 		}
@@ -177,18 +412,20 @@ void joystick_task( void )
 		{
 			if(y_pointer >= BUFFER_SIZE)
 			{
+				y_initialized = 1;
 				y_pointer = 0;
 			}
 			y_values[y_pointer] = ADC_SSFIFO0_R & ADC_SSFIFO3_DATA_M;
 			y_pointer++;
 			y_avg_calc();
-			write_4_char_int_to_buffer (12, 0, y_current );
 				
 			ADC_SSMUX0_R = 2;
 		}
 		//The converting starts by ,ADC_PSSI_SS0, bit 0 (for SS0) i ADC_PSSI_R
 		ADC_PSSI_R |= ADC_PSSI_SS0;
 	}
+	
+	calculate_v_space();
 }
 
 void init_joystick()

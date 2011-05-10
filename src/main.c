@@ -256,12 +256,12 @@ void regulation_task_runner(void *pvParameters)
  */
 void joystick_task_runner(void *pvParameters)
 {
-    lcd_add_string_to_buffer(0, 0, "X: ");
-    lcd_add_string_to_buffer(8, 0, "Y: ");
+    lcd_add_string_to_buffer(0, 0, "X");
+    lcd_add_string_to_buffer(0, 1, "Y");
     while (1)
     {
         joystick_task();
-        vTaskDelay(10);
+        vTaskDelay(1);
     }
 }
  
