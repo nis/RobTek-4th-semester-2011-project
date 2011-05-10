@@ -48,16 +48,40 @@ void write_2_char_int_to_buffer (INT8U start, INT8U line, INT8U i )
 	lcd_add_char_to_buffer(start + 1, line, c2);
 }
 
+void write_5_char_signed_int_to_buffer (INT8U start, INT8U line, INT16S i )
+{
+	if(i < 0)
+	{
+		lcd_add_char_to_buffer(start, line, '-');
+		write_5_char_int_to_buffer (start + 1, line, (INT16U) i*(-1) );
+	} else {
+		lcd_add_char_to_buffer(start, line, ' ');
+		write_5_char_int_to_buffer (start + 1, line, (INT16U) i );
+	}
+}
+
 void write_3_char_signed_int_to_buffer (INT8U start, INT8U line, INT8S i )
 {
 	if(i < 0)
 	{
 		lcd_add_char_to_buffer(start, line, '-');
+		write_3_char_int_to_buffer (start + 1, line, (INT8U) i*(-1) );
 	} else {
 		lcd_add_char_to_buffer(start, line, ' ');
+		write_3_char_int_to_buffer (start + 1, line, (INT8U) i );
 	}
-	
-	write_3_char_int_to_buffer (start + 1, line, (INT8U) i*(-1) );
+}
+
+void write_2_char_signed_int_to_buffer (INT8U start, INT8U line, INT8S i )
+{
+	if(i < 0)
+	{
+		lcd_add_char_to_buffer(start, line, '-');
+		write_2_char_int_to_buffer (start + 1, line, (INT8U) i*(-1) );
+	} else {
+		lcd_add_char_to_buffer(start, line, ' ');
+		write_2_char_int_to_buffer (start + 1, line, (INT8U) i );
+	}
 }
 
 void write_3_char_int_to_buffer (INT8U start, INT8U line, INT8U i )
