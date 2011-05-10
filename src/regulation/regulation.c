@@ -33,8 +33,8 @@
 /*****************************    Defines    *******************************/
 
 // Motor/Axes
-#define MOTOR_Y MOTOR_ONE
-#define MOTOR_X MOTOR_TWO
+#define MOTOR_Y MOTOR_TWO
+#define MOTOR_X MOTOR_ONE
 
 // PID defines
 // #define dt  1
