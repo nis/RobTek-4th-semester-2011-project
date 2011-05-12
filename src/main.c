@@ -205,6 +205,19 @@ void vUserTask4(void *pvParameters) {
 void spi_task(void *pvParameters) {
      
     while (1) {
+		
+		if(TEST_BIT_HIGH(SSI0_SR_R, 3))
+		{
+			// Receive full
+			led_red_toggle();
+		}
+		
+		if(TEST_BIT_LOW(SSI0_SR_R, 1))
+		{
+			// Send full
+			led_green_toggle();
+		}
+		
         spi_send_task();
         spi_receive_task();
          
