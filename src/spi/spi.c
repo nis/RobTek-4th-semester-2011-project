@@ -26,6 +26,7 @@
 #include "../defines.h"
 #include "../inc/lm3s6965.h"
 #include "../inc/binary.h"
+#include "../led/led.h"
 
 
 /*****************************    Defines    *******************************/
@@ -87,9 +88,13 @@ void spi_receive_task( void )
 *****************************************************************************/
 {
 	INT16U package;
-	package = SSI0_DR_R;
-	
-	xQueueSend(spi_input_queue, &package, 0);
+
+	while (TEST_BIT_HIGH(SSI0_SR_R, 2))
+	{
+		// Receive FIFO not empty
+		package = SSI0_DR_R;
+		xQueueSend(spi_input_queue, &package, 0);
+	}
 }
 
 void spi_send_task( void )
@@ -98,14 +103,45 @@ void spi_send_task( void )
 *****************************************************************************/
 {
 	INT16U package;
+	INT8U i = uxQueueMessagesWaiting(spi_output_queue);
 	
-	if(uxQueueMessagesWaiting(spi_output_queue) != 0) {
-		xQueueReceive(spi_output_queue, &package, 0);
-	} else {
-		package = 0;
+	if(i == 16)
+	{
+		led_yellow_toggle();
 	}
 	
-	SSI0_DR_R = package;
+	if(TEST_BIT_HIGH(SSI0_SR_R, 1))
+	{
+		while ( i > 0 )
+		{
+			xQueueReceive(spi_output_queue, &package, 0);
+			SSI0_DR_R = package;
+			i--;
+		}
+	}
+	
+	// if(i == 0)
+	// {
+	// 	led_yellow_toggle();
+	// 	package = 0;
+	// 	SSI0_DR_R = package;
+	// }
+	
+	// if(uxQueueMessagesWaiting(spi_output_queue) != 0) {
+	// 	
+	// } else {
+	// 	package = 0;
+	// }
+	// 
+	// SSI0_DR_R = package;
+	// 
+	// if(uxQueueMessagesWaiting(spi_output_queue) != 0) {
+	// 	xQueueReceive(spi_output_queue, &package, 0);
+	// } else {
+	// 	package = 0;
+	// }
+	// 
+	// SSI0_DR_R = package;
 }
 
 void spi_enable( void )
