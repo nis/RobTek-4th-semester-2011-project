@@ -12,6 +12,7 @@
 #include "queue.h"
 #include "semphr.h"
 #include "inc/emp_type.h"
+#include "inc/binary.h"
 #include "defines.h"
 #include "cpu/cpu.h"
 #include "led/led.h"
@@ -98,15 +99,24 @@ void vUserTask2(void *pvParameters) {
 void working_task(void *pvParameters) {
     //INT8U counter = 0;
      
-    lcd_add_string_to_buffer(0, 0, "                ");
-    lcd_add_string_to_buffer(0, 1, "                ");
-     
-    motor_send_command(MOTOR_ONE, MOTOR_CW, 0);
-    motor_send_command(MOTOR_TWO, MOTOR_CW, 0);
+
+	lcd_add_string_to_buffer(0, 0, "X               ");
+    lcd_add_string_to_buffer(0, 1, "Y               ");
+    // lcd_add_string_to_buffer(0, 0, "                ");
+    //     lcd_add_string_to_buffer(0, 1, "                ");
+    //      
+    //     motor_send_command(MOTOR_X, MOTOR_CW, 0);
+    //     motor_send_command(MOTOR_Y, MOTOR_CW, 0);
      
     while (1) {
          
- 
+		// Show target positions
+		write_5_char_int_to_buffer (1, 0, get_x_target_pos() );
+		write_5_char_int_to_buffer (1, 1, get_y_target_pos() );
+		
+		// Show position from FPGA
+		write_5_char_int_to_buffer (6, 0, motor_get_position( MOTOR_X ) );
+		write_5_char_int_to_buffer (6, 1, motor_get_position( MOTOR_Y ) );
          
         // Events from buttons
         // if(uxQueueMessagesWaiting(ui_event_queue) != 0)
@@ -146,7 +156,7 @@ void working_task(void *pvParameters) {
         //             break;
         //         }
         //         
-        //         motor_send_command(MOTOR_TWO, direction, speed);
+        //         motor_send_command(MOTOR_Y, direction, speed);
         //         
         //         if(direction == MOTOR_CW)
         //         {
@@ -163,22 +173,22 @@ void working_task(void *pvParameters) {
         // }
          
          
-        // Position
-        write_5_char_int_to_buffer (11, 1, motor_get_position( MOTOR_TWO ) );
-         
-        // Speed
-        write_5_char_int_to_buffer (5, 1, motor_get_speed( MOTOR_TWO ) );
-         
-        // Direction
-        if(motor_get_direction( MOTOR_TWO ) == MOTOR_CW)
-        {
-            lcd_add_string_to_buffer(1, 1, "CW ");
-        }
-         
-        if(motor_get_direction( MOTOR_TWO ) == MOTOR_CCW)
-        {
-            lcd_add_string_to_buffer(1, 1, "CCW");
-        }
+        // // Position
+        // write_5_char_int_to_buffer (11, 1, motor_get_position( MOTOR_Y ) );
+        //  
+        // // Speed
+        // write_5_char_int_to_buffer (5, 1, motor_get_speed( MOTOR_Y ) );
+        //  
+        // // Direction
+        // if(motor_get_direction( MOTOR_Y ) == MOTOR_CW)
+        // {
+        //     lcd_add_string_to_buffer(1, 1, "CW ");
+        // }
+        //  
+        // if(motor_get_direction( MOTOR_Y ) == MOTOR_CCW)
+        // {
+        //     lcd_add_string_to_buffer(1, 1, "CCW");
+        // }
          
         vTaskDelay(10) ;
     }
@@ -189,8 +199,8 @@ void working_task(void *pvParameters) {
  */
 void vUserTask4(void *pvParameters) {
     
-	lcd_add_string_to_buffer(0, 0, "                ");
-	lcd_add_string_to_buffer(0, 1, "                ");
+	// lcd_add_string_to_buffer(0, 0, "                ");
+	// lcd_add_string_to_buffer(0, 1, "                ");
 
     while (1) {
         lcd_write_task();
@@ -276,8 +286,6 @@ void regulation_task_runner(void *pvParameters)
  */
 void joystick_task_runner(void *pvParameters)
 {
-    lcd_add_string_to_buffer(0, 0, "X");
-    lcd_add_string_to_buffer(0, 1, "Y");
     while (1)
     {
         joystick_task();
@@ -296,13 +304,13 @@ int main(void) {
      */
     xTaskCreate( vUserTask1, ( signed portCHAR * ) "Task1", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
     xTaskCreate( vUserTask2, ( signed portCHAR * ) "Task2", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
-    // xTaskCreate( working_task, ( signed portCHAR * ) "Task3", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+    xTaskCreate( working_task, ( signed portCHAR * ) "Task3", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
     xTaskCreate( vUserTask4, ( signed portCHAR * ) "Task4", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
-    // xTaskCreate( spi_task, ( signed portCHAR * ) "Task5", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
-    // xTaskCreate( protocol_task_runner, ( signed portCHAR * ) "Task6", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
-    // xTaskCreate( motor_task, ( signed portCHAR * ) "Task7", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
-    // xTaskCreate( uart0_receive_task_runner, ( signed portCHAR * ) "Task8", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
-    // xTaskCreate( regulation_task_runner, ( signed portCHAR * ) "Task8", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+    xTaskCreate( spi_task, ( signed portCHAR * ) "Task5", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+    xTaskCreate( protocol_task_runner, ( signed portCHAR * ) "Task6", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+    xTaskCreate( motor_task, ( signed portCHAR * ) "Task7", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+    xTaskCreate( uart0_receive_task_runner, ( signed portCHAR * ) "Task8", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+    xTaskCreate( regulation_task_runner, ( signed portCHAR * ) "Task8", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
     xTaskCreate( joystick_task_runner, ( signed portCHAR * ) "Joystick", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 
      
