@@ -31,6 +31,8 @@
 #include "../uart/uart.h"
 
 /*****************************    Defines    *******************************/
+#define MOTOR_X 0
+#define MOTOR_Y 1
 
 // Motor/Axes
 #define MOTOR_Y MOTOR_TWO
