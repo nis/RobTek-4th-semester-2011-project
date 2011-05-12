@@ -33,8 +33,8 @@
 		
 	// Motor events
 		// Motors
-		#define MOTOR_ONE 0
-		#define MOTOR_TWO 1
+		#define MOTOR_X 0
+		#define MOTOR_Y 1
 		
 		// Event types
 		#define MOTOR_POS 1
@@ -72,6 +72,10 @@ extern xSemaphoreHandle motor_one_direction_mutex;
 extern xSemaphoreHandle motor_two_direction_mutex;
 extern xSemaphoreHandle motor_one_position_mutex;
 extern xSemaphoreHandle motor_two_position_mutex;
+extern xSemaphoreHandle y_pos_mutex;
+extern xSemaphoreHandle x_pos_mutex;
+extern xSemaphoreHandle y_target_pos_mutex;
+extern xSemaphoreHandle x_target_pos_mutex;
 
 // all queues in this c code
 extern xQueueHandle motor_event_queue;

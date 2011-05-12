@@ -50,14 +50,14 @@ void set_direction( INT8U m, INT8U d )
 *   Function : Internal, sets direction.
 *****************************************************************************/
 {
-	if(m == MOTOR_ONE)
+	if(m == MOTOR_X)
 	{
 		xSemaphoreTake(motor_one_direction_mutex, portMAX_DELAY );
 		motor_one_direction = d;
 		xSemaphoreGive(motor_one_direction_mutex);
 	}
 
-	if(m == MOTOR_TWO)
+	if(m == MOTOR_Y)
 	{
 		xSemaphoreTake(motor_two_direction_mutex, portMAX_DELAY );
 		motor_two_direction = d;
@@ -70,14 +70,14 @@ void set_speed( INT8U m, INT16U s )
 *   Function : Internal, sets speed.
 *****************************************************************************/
 {
-	if(m == MOTOR_ONE)
+	if(m == MOTOR_X)
 	{
 		xSemaphoreTake(motor_one_speed_mutex, portMAX_DELAY );
 		motor_one_speed = s;
 		xSemaphoreGive(motor_one_speed_mutex);
 	}
 	
-	if(m == MOTOR_TWO)
+	if(m == MOTOR_Y)
 	{
 		xSemaphoreTake(motor_two_speed_mutex, portMAX_DELAY );
 		motor_two_speed = s;
@@ -90,14 +90,14 @@ void set_position( INT8U m, INT16U p )
 *   Function : Internal, sets position.
 *****************************************************************************/
 {
-	if(m == MOTOR_ONE)
+	if(m == MOTOR_X)
 	{
 		xSemaphoreTake(motor_one_position_mutex, portMAX_DELAY );
 		motor_one_position = p;
 		xSemaphoreGive(motor_one_position_mutex);
 	}
 
-	if(m == MOTOR_TWO)
+	if(m == MOTOR_Y)
 	{
 		xSemaphoreTake(motor_two_position_mutex, portMAX_DELAY );
 		motor_two_position = p;
@@ -112,14 +112,14 @@ INT8U motor_get_direction( INT8U m )
 {
 	INT8U return_value = MOTOR_CW;
 	
-	if(m == MOTOR_ONE)
+	if(m == MOTOR_X)
 	{
 		xSemaphoreTake(motor_one_direction_mutex, portMAX_DELAY );
 		return_value = motor_one_direction;
 		xSemaphoreGive(motor_one_direction_mutex);
 	}
 
-	if(m == MOTOR_TWO)
+	if(m == MOTOR_Y)
 	{
 		xSemaphoreTake(motor_two_direction_mutex, portMAX_DELAY );
 		return_value = motor_two_direction;
@@ -134,14 +134,14 @@ INT16U motor_get_speed( INT8U m )
 *****************************************************************************/
 {
 	INT16U return_value = 0;
-	if(m == MOTOR_ONE)
+	if(m == MOTOR_X)
 	{
 		xSemaphoreTake(motor_one_speed_mutex, portMAX_DELAY );
 		return_value = motor_one_speed;
 		xSemaphoreGive(motor_one_speed_mutex);
 	}
 	
-	if(m == MOTOR_TWO)
+	if(m == MOTOR_Y)
 	{
 		xSemaphoreTake(motor_two_speed_mutex, portMAX_DELAY );
 		return_value = motor_two_speed;
@@ -156,14 +156,14 @@ INT16U motor_get_position( INT8U m )
 *****************************************************************************/
 {
 	INT16U return_value = 0;
-	if(m == MOTOR_ONE)
+	if(m == MOTOR_X)
 	{
 		xSemaphoreTake(motor_one_position_mutex, portMAX_DELAY );
 		return_value = motor_one_position;
 		xSemaphoreGive(motor_one_position_mutex);
 	}
 
-	if(m == MOTOR_TWO)
+	if(m == MOTOR_Y)
 	{
 		xSemaphoreTake(motor_two_position_mutex, portMAX_DELAY );
 		return_value = motor_two_position;
