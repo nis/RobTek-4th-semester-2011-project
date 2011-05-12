@@ -34,11 +34,17 @@
 
 // Hardware defines
 #define AXIS_START_LIMITS 20
-#define AXIS_DEADBAND 15
+#define AXIS_DEADBAND 25
 
 // Virtual 2D space
 #define VIRTUAL_SPACE_DIMENSIONS 1079
 #define VIRTUAL_SPACE_SCALE_FACTOR 150
+
+#define VIRTUAL_X_AXIS_LOW_LIMIT 350
+#define VIRTUAL_X_AXIS_UPPER_LIMIT 750
+
+#define X_SPEED_SCALE_FACTOR 2
+#define Y_SPEED_SCALE_FACTOR 3
 
 /*****************************   Constants   *******************************/
 
@@ -125,44 +131,59 @@ void calculate_v_space ( void )
 *****************************************************************************/
 {
 	// Calculate x-axis position in virtual space
-	if(x_rel_speed < 0)
+	INT16S u_speed = x_rel_speed * X_SPEED_SCALE_FACTOR;
+	if(u_speed < 0)
 	{
-		if(jabs(x_rel_speed) > x_v_pos)
+		if(jabs(u_speed) > (x_v_pos - (VIRTUAL_X_AXIS_LOW_LIMIT * VIRTUAL_SPACE_SCALE_FACTOR) ))
 		{
-			x_v_pos = 0;
+			x_v_pos = VIRTUAL_X_AXIS_LOW_LIMIT * VIRTUAL_SPACE_SCALE_FACTOR;
 		} else {
-			x_v_pos += x_rel_speed;
+			x_v_pos += u_speed;
 		}
 	} else {
-		if((VIRTUAL_SPACE_DIMENSIONS * VIRTUAL_SPACE_SCALE_FACTOR - x_v_pos) < x_rel_speed)
+		if((VIRTUAL_X_AXIS_UPPER_LIMIT * VIRTUAL_SPACE_SCALE_FACTOR - x_v_pos) < u_speed)
 		{
-			x_v_pos = VIRTUAL_SPACE_DIMENSIONS * VIRTUAL_SPACE_SCALE_FACTOR;
+			x_v_pos = VIRTUAL_X_AXIS_UPPER_LIMIT * VIRTUAL_SPACE_SCALE_FACTOR;
 		} else {
-			x_v_pos += x_rel_speed;
+			x_v_pos += u_speed;
 		}
 	}
 	
+	// // Saturate x-axis position
+	// if(x_v_pos < VIRTUAL_X_AXIS_LOW_LIMIT * VIRTUAL_SPACE_SCALE_FACTOR)
+	// {
+	// 	x_v_pos = VIRTUAL_X_AXIS_LOW_LIMIT * VIRTUAL_SPAlCthat razor :)
+
+	--Nis.Det kan være det også virker. Jeg tror problemet bliver om konstruktionen er stiv nok. Men det er da et forsøg værd, og karton er da vidst ikke vildt dyrt.SCALE_FACTOR;
+	// }
+	// 
+	// if(x_v_pos > VIRTUAL_X_AXIS_UPPER_LIMIT * VIRTUAL_SPACE_SCALE_FACTOR)
+	// {
+	// 	x_v_pos = VIRTUAL_X_AXIS_UPPER_LIMIT * VIRTUAL_SPACE_SCALE_FACTOR;
+	// }
+	
 	// Calculate y-axis position in virtual space
-	if(y_rel_speed < 0)
+	u_speed = y_rel_speed * Y_SPEED_SCALE_FACTOR;
+	if(u_speed < 0)
 	{
-		if(jabs(y_rel_speed) > y_v_pos)
+		if(jabs(u_speed) > y_v_pos)
 		{
 			y_v_pos = 0;
 		} else {
-			y_v_pos += y_rel_speed;
+			y_v_pos += u_speed;
 		}
 	} else {
-		if((VIRTUAL_SPACE_DIMENSIONS * VIRTUAL_SPACE_SCALE_FACTOR - y_v_pos) < y_rel_speed)
+		if((VIRTUAL_SPACE_DIMENSIONS * VIRTUAL_SPACE_SCALE_FACTOR - y_v_pos) < u_speed)
 		{
 			y_v_pos = VIRTUAL_SPACE_DIMENSIONS * VIRTUAL_SPACE_SCALE_FACTOR;
 		} else {
-			y_v_pos += y_rel_speed;
+			y_v_pos += u_speed;
 		}
 	}
 	
 	// Write to LCD
-	write_5_char_int_to_buffer (10, 0, (x_v_pos / VIRTUAL_SPACE_SCALE_FACTOR) );
-	write_5_char_int_to_buffer (10, 1, (y_v_pos / VIRTUAL_SPACE_SCALE_FACTOR) );
+	// write_5_char_int_to_buffer (10, 0, (x_v_pos / VIRTUAL_SPACE_SCALE_FACTOR) );
+	// write_5_char_int_to_buffer (10, 1, (y_v_pos / VIRTUAL_SPACE_SCALE_FACTOR) );
 }
 
 INT8S clean_y_speed ( void )
@@ -348,11 +369,11 @@ void x_avg_calc ( void )
 	}
 
 	x_rel_speed = clean_x_speed();
-	if(x_rel_speed != old_rel_speed)
-	{
-		write_2_char_signed_int_to_buffer (1, 0, x_rel_speed);
-		old_rel_speed = x_rel_speed;
-	}
+	// if(x_rel_speed != old_rel_speed)
+	// {
+	// 	write_2_char_signed_int_to_buffer (1, 0, x_rel_speed);
+	// 	old_rel_speed = x_rel_speed;
+	// }
 }
 
 void y_avg_calc ( void )
@@ -398,11 +419,11 @@ void y_avg_calc ( void )
 	}
 
 	y_rel_speed = clean_y_speed();
-	if(y_rel_speed != old_rel_speed)
-	{
-		write_2_char_signed_int_to_buffer (1, 1, y_rel_speed);
-		old_rel_speed = y_rel_speed;
-	}
+	// if(y_rel_speed != old_rel_speed)
+	// {
+	// 	//write_2_char_signed_int_to_buffer (1, 1, y_rel_speed);
+	// 	old_rel_speed = y_rel_speed;
+	// }
 }
 
 void joystick_task( void )
