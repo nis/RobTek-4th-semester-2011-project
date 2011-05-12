@@ -35,6 +35,10 @@ xSemaphoreHandle motor_one_direction_mutex;
 xSemaphoreHandle motor_two_direction_mutex;
 xSemaphoreHandle motor_one_position_mutex;
 xSemaphoreHandle motor_two_position_mutex;
+xSemaphoreHandle y_pos_mutex;
+xSemaphoreHandle x_pos_mutex;
+xSemaphoreHandle y_target_pos_mutex;
+xSemaphoreHandle x_target_pos_mutex;
  
 // Queues
 xQueueHandle motor_event_queue;
@@ -347,32 +351,60 @@ int main(void) {
         led_red_on();
         while(1);
     }
+
+	y_pos_mutex = xSemaphoreCreateMutex();
+    if ( y_pos_mutex == NULL )
+    {
+        led_red_on();
+        while(1);
+    }
+
+	x_pos_mutex = xSemaphoreCreateMutex();
+    if ( x_pos_mutex == NULL )
+    {
+        led_red_on();
+        while(1);
+    }
+
+	y_target_pos_mutex = xSemaphoreCreateMutex();
+    if ( y_target_pos_mutex == NULL )
+    {
+        led_red_on();
+        while(1);
+    }
+
+	x_target_pos_mutex = xSemaphoreCreateMutex();
+    if ( x_target_pos_mutex == NULL )
+    {
+        led_red_on();
+        while(1);
+    }
      
     /* 
      * Setup queues.
      */
-    motor_command_queue = xQueueCreate(128, sizeof( motor_command ) );
+    motor_command_queue = xQueueCreate(16, sizeof( motor_command ) );
     if (motor_command_queue == NULL)
     {
         led_red_on();
         while(1);
     }
          
-    motor_event_queue = xQueueCreate(128, sizeof( motor_event ) );
+    motor_event_queue = xQueueCreate(16, sizeof( motor_event ) );
     if (motor_event_queue == NULL)
     {
         led_red_on();
         while(1);
     }
      
-    spi_input_queue = xQueueCreate(128, sizeof( INT16U ) );
+    spi_input_queue = xQueueCreate(16, sizeof( INT16U ) );
     if (spi_input_queue == NULL)
     {
         led_red_on();
         while(1);
     }
      
-    spi_output_queue = xQueueCreate(128, sizeof( INT16U ) );
+    spi_output_queue = xQueueCreate(16, sizeof( INT16U ) );
     if (spi_output_queue == NULL)
     {
         led_red_on();
