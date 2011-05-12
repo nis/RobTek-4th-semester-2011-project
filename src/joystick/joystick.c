@@ -78,6 +78,30 @@ INT8U y_initialized = 0;
 
 /*****************************   Functions   *******************************/
 
+INT16U get_x_target_pos( void )
+/*****************************************************************************
+*   Function : Calculates absolute value.
+*****************************************************************************/
+{
+	
+	xSemaphoreTake(x_target_pos_mutex, portMAX_DELAY );
+	INT32U return_value = x_v_pos;
+	xSemaphoreGive(x_target_pos_mutex );
+	return (INT16U) (return_value / VIRTUAL_SPACE_SCALE_FACTOR);
+}
+
+INT16U get_y_target_pos( void )
+/*****************************************************************************
+*   Function : Calculates absolute value.
+*****************************************************************************/
+{
+	
+	xSemaphoreTake(y_target_pos_mutex, portMAX_DELAY );
+	INT32U return_value = y_v_pos;
+	xSemaphoreGive(y_target_pos_mutex );
+	return (INT16U) (return_value / VIRTUAL_SPACE_SCALE_FACTOR);
+}
+
 INT16U jabs(INT16S n)
 /*****************************************************************************
 *   Function : Calculates absolute value.
