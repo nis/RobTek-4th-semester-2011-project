@@ -43,6 +43,11 @@ INT16U motor_get_position( INT8U m );
 *   Function : Gets the position for motor m as lastly reported from the FPGA.
 *****************************************************************************/
 
+void motor_new_command(INT8U m, INT16S s);
+/*****************************************************************************
+*   Function : Sends the speed and direction to the command queue.
+*****************************************************************************/
+
 void motor_send_command(INT8U m, INT8U d, INT8U s);
 /*****************************************************************************
 *   Function : Sends the speed and direction to the command queue.
