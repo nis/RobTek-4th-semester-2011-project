@@ -102,7 +102,9 @@ void get_uart_commands(void)
 						if(c.value >= 0 && c.value <= 1079)
 						{
 							write_5_char_int_to_buffer (11, 0, c.value ); // Disable on production
+							xSemaphoreTake(x_pos_mutex, portMAX_DELAY );
 							x_target_pos = c.value;
+							xSemaphoreGive(x_pos_mutex );
 						}
 						break;
 					}
@@ -298,7 +300,7 @@ void regulation_task(void)
 *****************************************************************************/
 {
 	// See if there is any commands from UART to act on.
-	get_uart_commands();
+	// get_uart_commands();
 	
 	// Actually regulate
 	regulate();
