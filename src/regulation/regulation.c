@@ -29,31 +29,32 @@
 #include "../dual_motor_controller/dual_motor_controller.h"
 #include "../lcd/lcd.h"
 #include "../uart/uart.h"
+#include "../joystick/joystick.h"
 
 /*****************************    Defines    *******************************/
 #define MOTOR_X 0
 #define MOTOR_Y 1
 
-// Motor/Axes
-#define MOTOR_Y MOTOR_TWO
-#define MOTOR_X MOTOR_ONE
-
-// PID defines
-// #define dt  1
-// #define Kd  1
-
+// PID konstants
+	#define X_P 3
+	#define X_I 0
+	#define X_D 20
+	
+	#define Y_P 3
+	#define Y_I 0
+	#define Y_D 10
 /*****************************   Constants   *******************************/
 
 /*****************************   Variables   *******************************/
 
 // X-axis variables
-INT16U x_current_pos;
-INT8U x_current_dir = MOTOR_CW;
+//INT16U x_current_pos;
+//INT8U x_current_dir = MOTOR_CW;
 INT16U x_target_pos;
 
 // X-axis variables
-INT16U y_current_pos;
-INT8U y_current_dir = MOTOR_CW;
+//INT16U y_current_pos;
+//INT8U y_current_dir = MOTOR_CW;
 INT16U y_target_pos;
 
 /*****************************   Functions   *******************************/
