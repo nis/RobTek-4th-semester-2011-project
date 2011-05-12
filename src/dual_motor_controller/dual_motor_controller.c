@@ -27,6 +27,7 @@
 #include "../defines.h"
 #include "../inc/lm3s6965.h"
 #include "../inc/binary.h"
+#include "../led/led.h"
 
 /*****************************    Defines    *******************************/
 
@@ -195,6 +196,14 @@ void motor_new_command(INT8U m, INT16S s)
 		c.direction = MOTOR_CCW;
 		c.speed = s;
 	}
+	
+	if(m == MOTOR_Y)
+	{
+		write_3_char_signed_int_to_buffer (12, 1, s );
+	} else {
+		write_3_char_signed_int_to_buffer (12, 0, s );
+	}
+	
 	xQueueSend(motor_command_queue, &c, 0);
 }
 
