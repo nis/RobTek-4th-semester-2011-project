@@ -124,7 +124,69 @@ INT16U abs(INT16S n)
 	return return_value;
 }
 
-INT16S PIDcal ( INT8U epsilon, INT8U dt, INT16S max, INT16S min, INT16U Kp, INT16U Kd, INT16U Ki, INT16U target, INT16U current )
+INT16S y_PIDcal ( INT8U epsilon, INT8U dt, INT16S max, INT16S min, INT16U Kp, INT16U Kd, INT16U Ki, INT16U target, INT16U current )
+{
+	static INT16S pre_error = 0;
+	static INT8S pre_output = 0;
+	static INT16S integral = 0;
+	
+	INT16S error;
+	INT16S derivative;
+	INT16S output;
+	
+	error = target - current;
+	
+	// Error saturation
+	if(error > 250)
+	{
+		error = 250;
+	} else if(error < -250)
+	{
+		error = -250;
+	}
+	
+	if(abs(error) > epsilon)
+	{
+		integral = integral + error*dt;
+	}
+	
+	derivative = (error - pre_error)/dt;
+	
+	output = Kp*error + Ki*integral + Kd*derivative;
+	
+	//Saturation Filter
+	if(output > max)
+	{
+		output = max;
+	}
+	else if(output < min)
+	{
+		output = min;
+	}
+ 	
+	// if(output != pre_output)
+	// {
+	// 	uart_write_ch('(');
+	//     if(error < 0)
+	//     {
+	//     	uart_write_ch('-');
+	//     }
+	// 	uart_write_ch((abs(error) / 10) + 0x30);
+	// 	uart_write_ch((abs(error) % 10) + 0x30);
+	// 	uart_write_ch(')');
+	// 	uart_write_ch(' ');
+	// 	
+	// }
+
+	
+	//Update error
+    pre_output = output;
+    pre_error = error;
+
+	return output;
+}
+
+INT16S x_PIDcal ( INT8U epsilon, INT8U dt, INT16S max, INT16S min, INT16U Kp, INT16U Kd, INT16U Ki, INT16U target, INT16U current )
 {
 	static INT16S pre_error = 0;
 	static INT8S pre_output = 0;
@@ -194,11 +256,16 @@ void regulate(void)
 	//INT8U epsilon, INT8U dt, INT16S max, INT16S min, INT16U Kp, INT16U Kd, INT16U Ki, INT16U target, INT16U current )
 	
 	// x-axis regulation
-	INT16S x_new_speed = PIDcal ( 0, 1, 500, -500, 3, 10, 0, x_target_pos, motor_get_position(MOTOR_X) );
+	xSemaphoreTake(x_pos_mutex, portMAX_DELAY );
+	INT16S x_new_speed = x_PIDcal ( 0, 1, 500, -500, X_P, X_D, X_I, get_x_target_pos(), motor_get_position(MOTOR_X) );
+	xSemaphoreGive(x_pos_mutex );
 	motor_new_command(MOTOR_X, x_new_speed);
 	
 	// y-axis regulation
-	INT16S y_new_speed = PIDcal ( 0, 1, 500, -500, 3, 10, 0, y_target_pos, motor_get_position(MOTOR_Y) );
+	xSemaphoreTake(y_pos_mutex, portMAX_DELAY );
+	INT16S y_new_speed = y_PIDcal ( 0, 1, 500, -500, Y_P, Y_D, Y_I, get_y_target_pos(), motor_get_position(MOTOR_Y) );
+	xSemaphoreGive(y_pos_mutex );
+	//motor_new_command(MOTOR_Y, y_new_speed);
 	motor_new_command(MOTOR_Y, y_new_speed);
 	
 	// // Information
