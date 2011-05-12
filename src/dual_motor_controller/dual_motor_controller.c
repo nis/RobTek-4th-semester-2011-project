@@ -215,28 +215,32 @@ void dual_motor_receive_task()
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
+	INT8U i = uxQueueMessagesWaiting(motor_event_queue);
 	
-	if(uxQueueMessagesWaiting(motor_event_queue) != 0)
+	if(i != 0)
 	{
-		motor_event event;
-		
-		if(xQueueReceive(motor_event_queue, &event, 0) == pdPASS)
+		while (i > 0)
 		{
-			if(event.type == MOTOR_POS)
-			{
-				// Position
-				set_position(event.motor, event.value);
-			}
-			
-			if(event.type == MOTOR_SPEED)
-			{
-				// Speed
-				set_speed(event.motor, event.value);
-				
-				// Direction
-				set_direction(event.motor, event.direction);
-			}
+			motor_event event;
 
+			if(xQueueReceive(motor_event_queue, &event, 0) == pdPASS)
+			{
+				if(event.type == MOTOR_POS)
+				{
+					// Position
+					set_position(event.motor, event.value);
+				}
+
+				if(event.type == MOTOR_SPEED)
+				{
+					// Speed
+					set_speed(event.motor, event.value);
+
+					// Direction
+					set_direction(event.motor, event.direction);
+				}
+
+			}
 		}
 	}
 }

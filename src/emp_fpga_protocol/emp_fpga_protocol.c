@@ -42,37 +42,42 @@ void protocol_send_task (void)
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
-	if(uxQueueMessagesWaiting(motor_command_queue) != 0)
+	INT8U i = uxQueueMessagesWaiting(motor_command_queue);
+	if(i != 0)
 	{
-		motor_command command;
-		INT16U package;
-		
-		xQueueReceive(motor_command_queue, &command, 0);
-		
-		if(command.direction == MOTOR_CW)
+		while (i > 0)
 		{
-			package = 500 - command.speed;
-		} else {
-			package = command.speed + 500;
+			motor_command command;
+			INT16U package;
+
+			xQueueReceive(motor_command_queue, &command, 0);
+
+			if(command.direction == MOTOR_CW)
+			{
+				package = 500 - command.speed;
+			} else {
+				package = command.speed + 500;
+			}
+
+			if(command.motor == MOTOR_Y)
+			{
+				SET_BIT(package, 14);
+			} else {
+				CLEAR_BIT(package, 14);
+			}
+			SET_BIT(package, 15);
+			CLEAR_BIT(package, 13);
+			CLEAR_BIT(package, 12);
+			//CLEAR_BIT(package, 11);
+			//CLEAR_BIT(package, 10);
+			//CLEAR_BIT(package, 9);
+			//CLEAR_BIT(package, 8);
+			//CLEAR_BIT(package, 7);
+
+
+			xQueueSend(spi_output_queue, &package, 0);
+			i--;
 		}
-		
-		if(command.motor == MOTOR_TWO)
-		{
-			SET_BIT(package, 14);
-		} else {
-			CLEAR_BIT(package, 14);
-		}
-		SET_BIT(package, 15);
-		CLEAR_BIT(package, 13);
-		CLEAR_BIT(package, 12);
-		//CLEAR_BIT(package, 11);
-		//CLEAR_BIT(package, 10);
-		//CLEAR_BIT(package, 9);
-		//CLEAR_BIT(package, 8);
-		//CLEAR_BIT(package, 7);
-		
-		
-		xQueueSend(spi_output_queue, &package, 0);
 	}
 }
 
@@ -81,43 +86,47 @@ void protocol_receive_task (void)
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
-	
-	if(uxQueueMessagesWaiting(spi_input_queue) != 0)
+	INT8U i = uxQueueMessagesWaiting(spi_input_queue);
+	if(i != 0)
 	{
-		
-		motor_event event;
-		
-		xQueueReceive(spi_input_queue, &event.value, 0);
-
-		// Decipher and send to queue
-
-		if(TEST_BIT_HIGH(event.value, 15))
+		while ( i > 0)
 		{
-			event.motor = MOTOR_TWO;
-		} else {
-			event.motor = MOTOR_ONE;
-		}
+			motor_event event;
 
-		if(TEST_BIT_HIGH(event.value, 14))
-		{
-			event.type = MOTOR_POS;
-		} else {
-			event.type = MOTOR_SPEED;
-			if(TEST_BIT_HIGH(event.value, 13))
+			xQueueReceive(spi_input_queue, &event.value, 0);
+
+			// Decipher and send to queue
+
+			if(TEST_BIT_HIGH(event.value, 15))
 			{
-				event.direction = MOTOR_CCW;
+				event.motor = MOTOR_Y;
 			} else {
-				event.direction = MOTOR_CW;
+				event.motor = MOTOR_X;
 			}
+
+			if(TEST_BIT_HIGH(event.value, 14))
+			{
+				event.type = MOTOR_POS;
+			} else {
+				event.type = MOTOR_SPEED;
+				if(TEST_BIT_HIGH(event.value, 13))
+				{
+					event.direction = MOTOR_CCW;
+				} else {
+					event.direction = MOTOR_CW;
+				}
+			}
+
+			CLEAR_BIT(event.value, 11);
+			CLEAR_BIT(event.value, 12);
+			CLEAR_BIT(event.value, 13);
+			CLEAR_BIT(event.value, 14);
+			CLEAR_BIT(event.value, 15);
+
+			xQueueSend(motor_event_queue, &event, 0);
+			
+			i--;
 		}
-
-		CLEAR_BIT(event.value, 11);
-		CLEAR_BIT(event.value, 12);
-		CLEAR_BIT(event.value, 13);
-		CLEAR_BIT(event.value, 14);
-		CLEAR_BIT(event.value, 15);
-
-		xQueueSend(motor_event_queue, &event, 0);
 	}
 }
 
