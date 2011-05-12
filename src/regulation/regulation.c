@@ -56,6 +56,26 @@ INT16U y_target_pos;
 
 /*****************************   Functions   *******************************/
 
+void set_x_target( INT16U t )
+/*****************************************************************************
+*   Function : Parses commands from UART.
+*****************************************************************************/
+{
+	xSemaphoreTake(x_pos_mutex, portMAX_DELAY );
+	x_target_pos = t;
+	xSemaphoreGive(x_pos_mutex );
+}
+
+void set_y_target( INT16U t )
+/*****************************************************************************
+*   Function : Parses commands from UART.
+*****************************************************************************/
+{
+	xSemaphoreTake(y_pos_mutex, portMAX_DELAY );
+	y_target_pos = t;
+	xSemaphoreGive(y_pos_mutex );
+}
+
 void get_uart_commands(void)
 /*****************************************************************************
 *   Function : Parses commands from UART.
